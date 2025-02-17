@@ -1,0 +1,39 @@
+{
+	"schemaVersion": 1,
+	"id": "clock-in",
+	"version": "${version}",
+	"name": "clock-in",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Infinitygames"
+	],
+	"contact": {
+		"name": "Infinitygames"},
+	"license": "CC0-1.0",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"com.example.ClockinClient"
+		],
+		"modmenu": [
+			"com.example.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"clock-in.mixins.json",
+		{
+			"config": "clock-in.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"minecraft": "~1.21.4",
+		"java": ">=21",
+		"fabric-api": "*",
+		"yet_another_config_lib_v3": ">=3.6.1"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
