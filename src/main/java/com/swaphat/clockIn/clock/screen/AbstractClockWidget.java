@@ -45,7 +45,7 @@ public class AbstractClockWidget extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(
+    public void renderWidget(
             @NonNull GuiGraphics graphics,
             int mouseX,
             int mouseY,
