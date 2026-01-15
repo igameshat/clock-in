@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "clockin",
+  "version": "0.0.6_26.1-snapshot-1",
+  "name": "clockIn",
+  "description": "a simple mod that remove some useless button minecraft has",
+  "authors": [
+    "infinitygames"
+  ],
+  "license": "CC0-1.0",
+  "environment": "client",
+  "entrypoints" : {
+    "modmenu": ["com.swaphat.clockIn.comp.ModMenu"]
+  },
+  "mixins": [
+    {
+      "config": "clockIn.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "~26.1-alpha.3",
+    "java": ">=25"
+  }
+}

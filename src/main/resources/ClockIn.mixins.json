@@ -1,0 +1,15 @@
+{
+  "required" : false,
+  "package" : "com.swaphat.clockIn.mixin",
+  "compatibilityLevel" : "JAVA_22",
+  "client" : [
+    "IngameHudMixin",
+    "Main"
+  ],
+  "injectors" : {
+    "defaultRequire" : 1
+  },
+  "overwrites" : {
+    "requireAnnotations" : true
+  }
+}
