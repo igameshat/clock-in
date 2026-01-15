@@ -11,6 +11,9 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 
+import static com.swaphat.clockIn.clock.screen.AbstractClockWidget.message;
+
+
 public class ConfigInputScreen extends Screen {
 
     private final Screen parentScreen;
@@ -35,7 +38,6 @@ public class ConfigInputScreen extends Screen {
         int centerY = height / 2;
 
         if ("format".equals(segmentName)) {
-            // Use the pixel-width-limited EditBox for format
             int boxWidth = 200;
             inputBox = new LimitedWidthEditBox(
                     centerX - boxWidth / 2,
@@ -45,7 +47,7 @@ public class ConfigInputScreen extends Screen {
                     Component.empty(),
                     boxWidth
             );
-            inputBox.setValue(ConfigManager.getConfig().message);
+            inputBox.setValue(message.getString());
         } else {
             inputBox = new EditBox(font, centerX - 100, centerY, 200, 20, Component.empty());
             assert Minecraft.getInstance().screen != null;
@@ -77,7 +79,7 @@ public class ConfigInputScreen extends Screen {
             case "y" -> String.valueOf(AbstractClockWidget.y);
             case "width" -> String.valueOf(ConfigManager.getConfig().width);
             case "height" -> String.valueOf(ConfigManager.getConfig().height);
-            case "format" -> ConfigManager.getConfig().message;
+            case "format" -> message.getString();
             default -> "";
         };
     }
@@ -98,6 +100,15 @@ public class ConfigInputScreen extends Screen {
 
         if ("color".equals(segmentName)) {
             graphics.fill(width / 2 - 40, height / 2 + 25, width / 2 + 40, height / 2 + 45, previewColor);
+        }
+        if ("format".equals(segmentName)) {
+            graphics.drawCenteredString(
+                    Minecraft.getInstance().font,
+                    Component.literal("use %time% to put time"),
+                    Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2,
+                    Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2 + Minecraft.getInstance().font.lineHeight + Minecraft.getInstance().getWindow().getGuiScaledHeight() / 10,
+                    0xFFFFFFFF
+            );
         }
 
         super.render(graphics, mouseX, mouseY, delta);
@@ -131,8 +142,8 @@ public class ConfigInputScreen extends Screen {
                 case "x" -> {
                     float x = Float.parseFloat(value);
                     x = clamp(x, 0, screenW - Minecraft.getInstance().font.width(AbstractClockWidget.getRenderedText()));
-                    AbstractClockWidget.x = x;
                     ConfigManager.updateX(x);
+                    AbstractClockWidget.x = x;
                 }
                 case "y" -> {
                     float y = Float.parseFloat(value);
@@ -143,16 +154,18 @@ public class ConfigInputScreen extends Screen {
                 case "width" -> {
                     float w = Float.parseFloat(value);
                     w = clamp(w, 1, screenW - AbstractClockWidget.x);
+                    AbstractClockWidget.width = w;
                     ConfigManager.updateWidth(w);
                 }
                 case "height" -> {
                     float h = Float.parseFloat(value);
                     h = clamp(h, 1, screenH - AbstractClockWidget.y);
+                    AbstractClockWidget.height = h;
                     ConfigManager.updateHeight(h);
                 }
                 case "format" -> {
                     ConfigManager.updateMessage(value);
-                    AbstractClockWidget.message = Component.literal(value);
+                    System.out.println("changed message to " + value);
                 }
                 case "color" -> {
                     int rgb = parseRGB(value);
@@ -164,7 +177,7 @@ public class ConfigInputScreen extends Screen {
 
             clockWidget.updateHitbox();
         } catch (Exception e) {
-            ConfigStorage.LOGGER.warn("Invalid value for " + segmentName + ": " + value);
+            ConfigStorage.LOGGER.warn("Invalid value for {}: {}", segmentName, value);
         }
     }
 
@@ -177,13 +190,11 @@ public class ConfigInputScreen extends Screen {
         return false;
     }
 
-    /* =================================================
-       INNER SLIDER CLASS — DO NOT TOUCH value AFTER INIT
-       ================================================= */
+
     private class OpacitySlider extends AbstractSliderButton {
 
         public OpacitySlider(int x, int y, int w, int h, int alpha) {
-            super(x, y, w, h, Component.empty(), alpha / 255.0D);
+            super(x, y, w, h, Component.literal("Opacity: " + alpha), alpha / 255.0D);
             updateMessage();
         }
 
@@ -194,13 +205,16 @@ public class ConfigInputScreen extends Screen {
 
         @Override
         protected void applyValue() {
+            // Update previewAlpha
             previewAlpha = (int) Math.round(value * 255);
+
+            // Update the actual clock color immediately
+            AbstractClockWidget.color = (previewAlpha << 24) | previewRGB;
+            clockWidget.updateHitbox();
         }
     }
 
-    /* =================================================
-       INNER PIXEL-WIDTH LIMITED EDITBOX
-       ================================================= */
+
     private class LimitedWidthEditBox extends EditBox {
         private final int maxPixelWidth;
 
@@ -218,4 +232,17 @@ public class ConfigInputScreen extends Screen {
             // ignore input that would exceed width
         }
     }
+
+    @Override
+    public void onClose() {
+        super.onClose();
+
+        // Save color when closing
+        if ("color".equals(segmentName)) {
+            ConfigManager.updateColor(AbstractClockWidget.color);
+        }
+
+        this.minecraft.setScreen(parentScreen);
+    }
+
 }

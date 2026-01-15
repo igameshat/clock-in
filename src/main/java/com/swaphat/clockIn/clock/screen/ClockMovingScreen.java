@@ -1,16 +1,15 @@
 package com.swaphat.clockIn.clock.screen;
 
 import com.swaphat.clockIn.Config.ConfigManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 
-import static com.swaphat.clockIn.clock.screen.AbstractClockWidget.color;
-import static com.swaphat.clockIn.clock.screen.AbstractClockWidget.message;
 
 public class ClockMovingScreen extends Screen {
     private static final Component TITLE = Component.literal("Clock Moving Screen");
@@ -31,37 +30,59 @@ public class ClockMovingScreen extends Screen {
         this.minecraft.gui.renderDeferredSubtitles();
     }
 
-    // Create clock widget
     AbstractClockWidget clockWidget = new AbstractClockWidget(
             ConfigManager.getConfig().x,
             ConfigManager.getConfig().y,
             ConfigManager.getConfig().width,
             ConfigManager.getConfig().height,
-            Component.literal(ConfigManager.getConfig().message.replace("%time%", LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")))),
+            Component.literal(ConfigManager.getConfig().message),
             ConfigManager.getConfig().color
     );
 
-    // Pass clock widget as 4th argument
     AbstractConfigWidget configWidget = new AbstractConfigWidget(
             0, 0,
             0xFFFFFFFF,
             clockWidget
     );
 
+    AbstractWidget textWidget = new AbstractWidget(
+            Minecraft.getInstance().getWindow().getScreenWidth()/2, Minecraft.getInstance().getWindow().getGuiScaledHeight()/2,
+            Minecraft.getInstance().font.width(Component.literal("press esc to close")),
+            Minecraft.getInstance().font.lineHeight,
+            Component.literal("press esc to close")
+
+
+    ) {
+        @Override
+        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float a) {
+            graphics.drawCenteredString(
+                    Minecraft.getInstance().font,
+                    "press esc to close",
+                    Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2,
+                    Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2,
+                    0xFFFFFFFF
+            );
+        }
+
+        @Override
+        protected void updateWidgetNarration(@NonNull NarrationElementOutput output) {
+
+        }
+    };
+
     @Override
     protected void init() {
         super.init();
         this.addRenderableWidget(clockWidget);
         this.addRenderableWidget(configWidget);
+        this.addRenderableWidget(textWidget);
+        clockWidget.isInHUD = true;
     }
 
     @Override
     public void onClose() {
+        clockWidget.isInHUD = false;
         super.onClose();
         this.minecraft.setScreen(null);
-        ConfigManager.updateX(AbstractClockWidget.x);
-        ConfigManager.updateY(AbstractClockWidget.y);
-        ConfigManager.updateMessage(message.getString());
-        ConfigManager.updateColor(color);
     }
 }

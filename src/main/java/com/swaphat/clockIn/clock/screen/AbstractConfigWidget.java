@@ -14,6 +14,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
 public class AbstractConfigWidget extends AbstractWidget {
 
     protected float x, y;
@@ -44,14 +45,8 @@ public class AbstractConfigWidget extends AbstractWidget {
         segments.put("y", font.width("y: " + AbstractClockWidget.y));
         segments.put("width", font.width("width: " + AbstractClockWidget.width));
         segments.put("height", font.width("height: " + AbstractClockWidget.height));
-        segments.put(
-                "color",
-                font.width(String.format("color: %08X", AbstractClockWidget.color))
-        );
-        segments.put(
-                "format",
-                font.width("format: " + AbstractClockWidget.message.getString())
-        );
+        segments.put("color", font.width(String.format("color: %08X", AbstractClockWidget.color)));
+        segments.put("format", font.width("format: " + AbstractClockWidget.getRenderedText()));
 
         this.width = segments.values().stream().mapToInt(Integer::intValue).sum()
                 + font.width(" ") * (segments.size() - 1);
@@ -66,8 +61,12 @@ public class AbstractConfigWidget extends AbstractWidget {
 
         for (Map.Entry<String, Integer> entry : segments.entrySet()) {
             String name = entry.getKey();
-            int segWidth = entry.getValue();
 
+            // segment width: use dynamic text width for "format" only
+            int segWidth = segments.get(name);
+
+
+            // background color per segment
             int bgColor = switch (name) {
                 case "x" -> 0x8800FFFF;
                 case "y" -> 0x88FF00FF;
@@ -86,7 +85,7 @@ public class AbstractConfigWidget extends AbstractWidget {
                 case "width" -> "width: " + AbstractClockWidget.width;
                 case "height" -> "height: " + AbstractClockWidget.height;
                 case "color" -> String.format("color: %08X", AbstractClockWidget.color);
-                case "format" -> "format: " + AbstractClockWidget.message.getString();
+                case "format" -> "format: " + AbstractClockWidget.getRenderedText();
                 default -> "";
             };
 
@@ -116,12 +115,12 @@ public class AbstractConfigWidget extends AbstractWidget {
         }
     }
 
+
     @Override
     public void onClick(@NonNull MouseButtonEvent event, boolean doubleClick) {
         mouseXClick = event.x();
         mouseYClick = event.y();
-        ConfigManager.getConfig();
-        ConfigStorage.LOGGER.info("Config click at: " + mouseXClick + ", " + mouseYClick);
+        ConfigStorage.LOGGER.info("Config click at: {}, {}", mouseXClick, mouseYClick);
     }
 
     @Override

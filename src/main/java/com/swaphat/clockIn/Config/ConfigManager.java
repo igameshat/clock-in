@@ -2,7 +2,9 @@ package com.swaphat.clockIn.Config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.swaphat.clockIn.clock.screen.AbstractClockWidget;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.chat.Component;
 
 import java.io.File;
 import java.io.FileReader;
@@ -93,6 +95,7 @@ public class ConfigManager {
     }
 
     public static void updateMessage(String message) {
+        AbstractClockWidget.setClockMessage(Component.nullToEmpty(message));
         getConfig().message = message;
         saveConfig();
     }
