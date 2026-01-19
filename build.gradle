@@ -1,6 +1,7 @@
 plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+	id "com.modrinth.minotaur" version "2.+"
 }
 
 version = project.mod_version
@@ -87,5 +88,22 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
+	}
+}
+
+modrinth {
+	token = System.getenv("MODRINTH_TOKEN") // Remember to have the MODRINTH_TOKEN environment variable set or else this will fail - just make sure it stays private!
+	projectId = "clock-in" // This can be the project ID or the slug. Either will work!
+	versionNumber = "${project.mod_version}" // You don't need to set this manually. Will fail if Modrinth has this version already
+	versionType = "beta" // This is the default -- can also be `beta` or `alpha`
+	uploadFile = jar // With Loom, this MUST be set to `remapJar` instead of `jar`!
+	gameVersions = ["${project.minecraft_version}"] as Iterable<? extends String>
+    // Must be an array, even with only one version
+	loaders = ["fabric"] // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
+	dependencies { // A special DSL for creating dependencies
+		// scope.type
+		// The scope can be `required`, `optional`, `incompatible`, or `embedded`
+		// The type can either be `project` or `version`
+		optional.version "modmenu", "${project.modmenu_version}" // Creates a new optional dependency on this specific version of Sodium
 	}
 }
