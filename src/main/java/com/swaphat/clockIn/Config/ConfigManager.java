@@ -99,4 +99,14 @@ public class ConfigManager {
         getConfig().message = message;
         saveConfig();
     }
+
+    public static void updateScale(float scale) {
+        getConfig().scale = scale;
+        saveConfig();
+    }
+
+    public static void updateShadow(boolean shouldShadow) {
+        getConfig().shadow = shouldShadow;
+        saveConfig();
+    }
 }

@@ -16,13 +16,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
 @Mixin(PauseScreen.class)
-public class escScreenMixin extends Screen {
-
+public class EscScreenMixin extends Screen {
 
     @Unique
     private AbstractClockWidget clockWidget;
 
-    protected escScreenMixin(Component title) {
+    protected EscScreenMixin(Component title) {
         super(title);
     }
 
@@ -37,16 +36,16 @@ public class escScreenMixin extends Screen {
                 Component.literal(ConfigManager.getConfig().message),
                 ConfigManager.getConfig().color
         );
+        clockWidget.setX((int) ConfigManager.getConfig().x);
+        clockWidget.setY((int) ConfigManager.getConfig().y);
         this.addRenderableWidget(clockWidget);
-
-
     }
 
     @Inject(method = "render", at = @At("TAIL"))
     private void onRender(GuiGraphics graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
         if (clockWidget != null) {
             // render the widget every frame
-            clockWidget.renderWidget(graphics, 0, 0, a);
+            clockWidget.render(graphics, mouseX, mouseY, a);
 
         }
     }

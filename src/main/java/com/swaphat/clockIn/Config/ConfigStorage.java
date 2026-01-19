@@ -5,11 +5,15 @@ import org.slf4j.LoggerFactory;
 
 public class ConfigStorage {
 
-    public float x = 20f;
-    public float y = 20f;
+    public float x = 100f;
+    public float y = 100f;
 
     public float width = 20f;
     public float height = 20f;
+
+    public float scale = 5f;
+
+    public boolean shadow = true;
 
     public int color = 0xFFFFFFFF;
     public String message = "clock %time%";

@@ -43,8 +43,7 @@ public class AbstractConfigWidget extends AbstractWidget {
 
         segments.put("x", font.width("x: " + AbstractClockWidget.x));
         segments.put("y", font.width("y: " + AbstractClockWidget.y));
-        segments.put("width", font.width("width: " + AbstractClockWidget.width));
-        segments.put("height", font.width("height: " + AbstractClockWidget.height));
+        segments.put("scale", font.width("scale: " + AbstractClockWidget.scale));
         segments.put("color", font.width(String.format("color: %08X", AbstractClockWidget.color)));
         segments.put("format", font.width("format: " + AbstractClockWidget.getRenderedText()));
 
@@ -70,8 +69,7 @@ public class AbstractConfigWidget extends AbstractWidget {
             int bgColor = switch (name) {
                 case "x" -> 0x8800FFFF;
                 case "y" -> 0x88FF00FF;
-                case "width" -> 0x8800FF00;
-                case "height" -> 0x88FF0000;
+                case "scale" -> 0x880000FF;
                 case "color" -> AbstractClockWidget.color;
                 case "format" -> 0x88FFFF00;
                 default -> 0x88000000;
@@ -82,8 +80,7 @@ public class AbstractConfigWidget extends AbstractWidget {
             String text = switch (name) {
                 case "x" -> "x: " + AbstractClockWidget.x;
                 case "y" -> "y: " + AbstractClockWidget.y;
-                case "width" -> "width: " + AbstractClockWidget.width;
-                case "height" -> "height: " + AbstractClockWidget.height;
+                case "scale" -> "scale: " + AbstractClockWidget.scale;
                 case "color" -> String.format("color: %08X", AbstractClockWidget.color);
                 case "format" -> "format: " + AbstractClockWidget.getRenderedText();
                 default -> "";

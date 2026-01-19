@@ -1,9 +1,12 @@
 package com.swaphat.clockIn.mixin.hud;
 
 import com.swaphat.clockIn.Config.ConfigManager;
+import com.swaphat.clockIn.Config.ConfigStorage;
 import com.swaphat.clockIn.clock.screen.AbstractClockWidget;
 import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,15 +24,17 @@ public class IngameHudMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void onInit(CallbackInfo ci) {
-        // create the widget once
-        clockWidget = new AbstractClockWidget(
-                ConfigManager.getConfig().x,
-                ConfigManager.getConfig().y,
-                ConfigManager.getConfig().width,
-                ConfigManager.getConfig().height,
-                Component.literal(ConfigManager.getConfig().message),
-                ConfigManager.getConfig().color
-        );
+        if (!(Minecraft.getInstance().screen instanceof PauseScreen)) {
+            ConfigStorage configStorage = ConfigManager.getConfig();
+            clockWidget = new AbstractClockWidget(
+                    configStorage.x,
+                    configStorage.y,
+                    configStorage.width,
+                    configStorage.height,
+                    Component.literal(configStorage.message),
+                    configStorage.color
+            );
+        }
     }
 
     @Inject(method = "render", at = @At("TAIL"))

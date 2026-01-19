@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "clockin",
-  "version": "0.0.6_26.1-snapshot-1",
+  "version": "0.0.1-26.1-snapshot-3",
   "name": "clockIn",
-  "description": "a simple mod that remove some useless button minecraft has",
+  "description": "a simple mod that adds a simple clock hud",
   "authors": [
     "infinitygames"
   ],

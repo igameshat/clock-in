@@ -5,13 +5,18 @@ import com.swaphat.clockIn.Config.ConfigStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import org.jspecify.annotations.NonNull;
 
+import java.util.function.Supplier;
+
 import static com.swaphat.clockIn.clock.screen.AbstractClockWidget.message;
+import static com.swaphat.clockIn.clock.screen.AbstractClockWidget.shadow;
 
 
 public class ConfigInputScreen extends Screen {
@@ -79,6 +84,7 @@ public class ConfigInputScreen extends Screen {
             case "y" -> String.valueOf(AbstractClockWidget.y);
             case "width" -> String.valueOf(ConfigManager.getConfig().width);
             case "height" -> String.valueOf(ConfigManager.getConfig().height);
+            case "scale" -> String.valueOf(ConfigManager.getConfig().scale);
             case "format" -> message.getString();
             default -> "";
         };
@@ -109,6 +115,25 @@ public class ConfigInputScreen extends Screen {
                     Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2 + Minecraft.getInstance().font.lineHeight + Minecraft.getInstance().getWindow().getGuiScaledHeight() / 10,
                     0xFFFFFFFF
             );
+            this.addRenderableWidget(new Button(0, 0, font.width(shadow ? Component.literal("shadow: on") : Component.literal("shadow: off"))+3, font.lineHeight+3,
+                    shadow ? Component.literal("shadow: on") : Component.literal("shadow: off"),
+                    _ -> {
+                        shadow = !shadow;
+                        ConfigManager.updateShadow(shadow);
+                    },
+                    new Button.CreateNarration() {
+                        @Override
+                        public @NonNull MutableComponent createNarrationMessage(@NonNull Supplier<MutableComponent> defaultNarrationSupplier) {
+                            return Component.literal(""); // safe mutable component
+                        }
+                })
+            {
+                @Override
+                protected void renderContents(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float a) {
+                    graphics.fill(0, 0, font.width(shadow ? Component.literal("shadow: on") : Component.literal("shadow: off"))+3, font.lineHeight+3, shadow ? 0x8800FF00 : 0x88FF0000);
+                    graphics.drawString(Minecraft.getInstance().font, shadow ? Component.literal("shadow: on") : Component.literal("shadow: off"), 1, 1, 0xFFFFFFFF);
+                }
+            });
         }
 
         super.render(graphics, mouseX, mouseY, delta);
@@ -151,17 +176,11 @@ public class ConfigInputScreen extends Screen {
                     AbstractClockWidget.y = y;
                     ConfigManager.updateY(y);
                 }
-                case "width" -> {
-                    float w = Float.parseFloat(value);
-                    w = clamp(w, 1, screenW - AbstractClockWidget.x);
-                    AbstractClockWidget.width = w;
-                    ConfigManager.updateWidth(w);
-                }
-                case "height" -> {
-                    float h = Float.parseFloat(value);
-                    h = clamp(h, 1, screenH - AbstractClockWidget.y);
-                    AbstractClockWidget.height = h;
-                    ConfigManager.updateHeight(h);
+                case "scale" -> {
+                    float scale = Float.parseFloat(value);
+                    scale = clamp(scale, 1, 10);
+                    AbstractClockWidget.scale = scale;
+                    ConfigManager.updateScale(scale);
                 }
                 case "format" -> {
                     ConfigManager.updateMessage(value);
@@ -243,6 +262,13 @@ public class ConfigInputScreen extends Screen {
         }
 
         this.minecraft.setScreen(parentScreen);
+        ConfigManager.updateX(AbstractClockWidget.x);
+        ConfigManager.updateY(AbstractClockWidget.y);
+        ConfigManager.updateWidth(AbstractClockWidget.width);
+        ConfigManager.updateHeight(AbstractClockWidget.height);
+        ConfigManager.updateScale(AbstractClockWidget.scale);
+        ConfigManager.updateColor(AbstractClockWidget.color);
+        ConfigManager.updateShadow(shadow);
     }
 
 }

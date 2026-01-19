@@ -3,7 +3,7 @@
   "package" : "com.swaphat.clockIn.mixin",
   "compatibilityLevel" : "JAVA_22",
   "client" : [
-    "hud.escScreenMixin",
+    "hud.EscScreenMixin",
     "hud.IngameHudMixin",
     "Main"
   ],

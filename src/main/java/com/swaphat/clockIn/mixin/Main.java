@@ -26,7 +26,6 @@ public class Main {
 
     @Inject(at = @At("TAIL"), method = "run")
     private void oppositeOfInit(CallbackInfo info) {
-        //forgot what the opposite of init and cant search it up without internet(didnt have it while naming & please stop judging me)
         saveConfig();
 
 
