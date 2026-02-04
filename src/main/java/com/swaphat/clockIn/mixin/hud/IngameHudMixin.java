@@ -1,7 +1,7 @@
 package com.swaphat.clockIn.mixin.hud;
 
-import com.swaphat.clockIn.Config.ConfigManager;
-import com.swaphat.clockIn.Config.ConfigStorage;
+import com.swaphat.clockIn.config.ConfigManager;
+import com.swaphat.clockIn.config.ConfigStorage;
 import com.swaphat.clockIn.clock.screen.AbstractClockWidget;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -13,9 +13,10 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.client.gui.Gui;
 
 
-@Mixin(net.minecraft.client.gui.Gui.class)
+@Mixin(Gui.class)
 public class IngameHudMixin {
 
     @Unique
@@ -23,7 +24,7 @@ public class IngameHudMixin {
 
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void onInit(CallbackInfo ci) {
+    private void addWidgetOnInit(CallbackInfo ci) {
         if (!(Minecraft.getInstance().screen instanceof PauseScreen)) {
             ConfigStorage configStorage = ConfigManager.getConfig();
             clockWidget = new AbstractClockWidget(
@@ -40,7 +41,6 @@ public class IngameHudMixin {
     @Inject(method = "render", at = @At("TAIL"))
     private void onRender(GuiGraphics graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (clockWidget != null) {
-            // render the widget every frame
             clockWidget.renderWidget(graphics, 0, 0, deltaTracker.getRealtimeDeltaTicks());
 
         }

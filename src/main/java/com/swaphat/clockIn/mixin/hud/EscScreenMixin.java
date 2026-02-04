@@ -2,7 +2,7 @@ package com.swaphat.clockIn.mixin.hud;
 
 
 
-import com.swaphat.clockIn.Config.ConfigManager;
+import com.swaphat.clockIn.config.ConfigManager;
 import com.swaphat.clockIn.clock.screen.AbstractClockWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.PauseScreen;
@@ -27,7 +27,7 @@ public class EscScreenMixin extends Screen {
 
 
     @Inject(method = "init", at = @At("TAIL"))
-    private void onInitWidgets(CallbackInfo ci) {
+    private void addWidgetOnInit(CallbackInfo ci) {
         clockWidget = new AbstractClockWidget(
                 ConfigManager.getConfig().x,
                 ConfigManager.getConfig().y,
@@ -44,7 +44,6 @@ public class EscScreenMixin extends Screen {
     @Inject(method = "render", at = @At("TAIL"))
     private void onRender(GuiGraphics graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
         if (clockWidget != null) {
-            // render the widget every frame
             clockWidget.render(graphics, mouseX, mouseY, a);
 
         }

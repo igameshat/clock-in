@@ -1,4 +1,4 @@
-package com.swaphat.clockIn.Config;
+package com.swaphat.clockIn.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -107,6 +107,11 @@ public class ConfigManager {
 
     public static void updateShadow(boolean shouldShadow) {
         getConfig().shadow = shouldShadow;
+        saveConfig();
+    }
+
+    public static void updateBackgroundColor(int backgroundColor){
+        getConfig().backgroundColor = backgroundColor;
         saveConfig();
     }
 }

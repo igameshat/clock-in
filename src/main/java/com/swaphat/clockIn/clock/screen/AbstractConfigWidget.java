@@ -1,7 +1,7 @@
 package com.swaphat.clockIn.clock.screen;
 
-import com.swaphat.clockIn.Config.ConfigManager;
-import com.swaphat.clockIn.Config.ConfigStorage;
+import com.swaphat.clockIn.config.ConfigManager;
+import com.swaphat.clockIn.config.ConfigStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -41,11 +41,12 @@ public class AbstractConfigWidget extends AbstractWidget {
     private void updateSegments() {
         segments.clear();
 
-        segments.put("x", font.width("x: " + AbstractClockWidget.x));
-        segments.put("y", font.width("y: " + AbstractClockWidget.y));
-        segments.put("scale", font.width("scale: " + AbstractClockWidget.scale));
-        segments.put("color", font.width(String.format("color: %08X", AbstractClockWidget.color)));
+        segments.put("x", font.width("x: " + ConfigManager.getConfig().x));
+        segments.put("y", font.width("y: " + ConfigManager.getConfig().y));
+        segments.put("scale", font.width("scale: " + ConfigManager.getConfig().scale));
+        segments.put("color", font.width(String.format("color: %08X", ConfigManager.getConfig().color)));
         segments.put("format", font.width("format: " + AbstractClockWidget.getRenderedText()));
+        segments.put("background color", font.width("background color: " + ConfigManager.getConfig().backgroundColor));
 
         this.width = segments.values().stream().mapToInt(Integer::intValue).sum()
                 + font.width(" ") * (segments.size() - 1);
@@ -70,8 +71,9 @@ public class AbstractConfigWidget extends AbstractWidget {
                 case "x" -> 0x8800FFFF;
                 case "y" -> 0x88FF00FF;
                 case "scale" -> 0x880000FF;
-                case "color" -> AbstractClockWidget.color;
+                case "color" -> ConfigManager.getConfig().color;
                 case "format" -> 0x88FFFF00;
+                case "background color" -> 0x8800FF00;
                 default -> 0x88000000;
             };
 
@@ -81,8 +83,9 @@ public class AbstractConfigWidget extends AbstractWidget {
                 case "x" -> "x: " + AbstractClockWidget.x;
                 case "y" -> "y: " + AbstractClockWidget.y;
                 case "scale" -> "scale: " + AbstractClockWidget.scale;
-                case "color" -> String.format("color: %08X", AbstractClockWidget.color);
+                case "color" -> String.format("color: %08X", ConfigManager.getConfig().color);
                 case "format" -> "format: " + AbstractClockWidget.getRenderedText();
+                case "background color" -> "background color: " + AbstractClockWidget.backgroundColor;
                 default -> "";
             };
 
@@ -117,7 +120,7 @@ public class AbstractConfigWidget extends AbstractWidget {
     public void onClick(@NonNull MouseButtonEvent event, boolean doubleClick) {
         mouseXClick = event.x();
         mouseYClick = event.y();
-        ConfigStorage.LOGGER.info("Config click at: {}, {}", mouseXClick, mouseYClick);
+        if(ConfigManager.getConfig().isDebug) ConfigStorage.LOGGER.info("config click at: {}, {}", mouseXClick, mouseYClick);
     }
 
     @Override

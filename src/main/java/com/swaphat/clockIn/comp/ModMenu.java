@@ -1,7 +1,7 @@
 package com.swaphat.clockIn.comp;
 
-import com.swaphat.clockIn.Config.ConfigScreen;
-import com.swaphat.clockIn.Config.ConfigStorage;
+import com.swaphat.clockIn.clock.screen.ClockMovingScreen;
+import com.swaphat.clockIn.config.ConfigStorage;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
@@ -10,7 +10,6 @@ public class ModMenu implements ModMenuApi {
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         ConfigStorage.LOGGER.info("opening ModMenu config");
 
-        return _ -> new ConfigScreen();
+        return _ -> new ClockMovingScreen();
     }
-
 }

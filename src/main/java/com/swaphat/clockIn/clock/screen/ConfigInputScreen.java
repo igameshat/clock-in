@@ -1,7 +1,7 @@
 package com.swaphat.clockIn.clock.screen;
 
-import com.swaphat.clockIn.Config.ConfigManager;
-import com.swaphat.clockIn.Config.ConfigStorage;
+import com.swaphat.clockIn.config.ConfigManager;
+import com.swaphat.clockIn.config.ConfigStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
@@ -15,8 +15,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.function.Supplier;
 
-import static com.swaphat.clockIn.clock.screen.AbstractClockWidget.message;
-import static com.swaphat.clockIn.clock.screen.AbstractClockWidget.shadow;
+import static com.swaphat.clockIn.clock.screen.AbstractClockWidget.*;
 
 
 public class ConfigInputScreen extends Screen {
@@ -63,7 +62,17 @@ public class ConfigInputScreen extends Screen {
                 int currentColor = AbstractClockWidget.color;
 
                 previewAlpha = (currentColor >>> 24) & 0xFF;
-                previewRGB   = currentColor & 0x00FFFFFF;
+                previewRGB = currentColor & 0x00FFFFFF;
+
+                inputBox.setValue(String.format("#%06X", previewRGB));
+
+                OpacitySlider opacitySlider = new OpacitySlider(centerX - 100, centerY - 35, 200, 20, previewAlpha);
+                addRenderableWidget(opacitySlider);
+            } else if ("background color".equals(segmentName)) {
+                int currentColor = AbstractClockWidget.backgroundColor;
+
+                previewAlpha = (currentColor >>> 24) & 0xFF;
+                previewRGB = currentColor & 0x00FFFFFF;
 
                 inputBox.setValue(String.format("#%06X", previewRGB));
 
@@ -86,6 +95,7 @@ public class ConfigInputScreen extends Screen {
             case "height" -> String.valueOf(ConfigManager.getConfig().height);
             case "scale" -> String.valueOf(ConfigManager.getConfig().scale);
             case "format" -> message.getString();
+            case "background color" -> String.valueOf(ConfigManager.getConfig().backgroundColor);
             default -> "";
         };
     }
@@ -94,7 +104,7 @@ public class ConfigInputScreen extends Screen {
     public void render(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         graphics.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
 
-        if ("color".equals(segmentName)) {
+        if ("color".equals(segmentName) || "background color".equals(segmentName)) {
             previewRGB = parseRGB(inputBox.getValue());
         }
 
@@ -104,7 +114,7 @@ public class ConfigInputScreen extends Screen {
 
         inputBox.render(graphics, mouseX, mouseY, delta);
 
-        if ("color".equals(segmentName)) {
+        if ("color".equals(segmentName) || "background color".equals(segmentName)) {
             graphics.fill(width / 2 - 40, height / 2 + 25, width / 2 + 40, height / 2 + 45, previewColor);
         }
         if ("format".equals(segmentName)) {
@@ -183,8 +193,8 @@ public class ConfigInputScreen extends Screen {
                     ConfigManager.updateScale(scale);
                 }
                 case "format" -> {
-                    ConfigManager.updateMessage(value);
-                    System.out.println("changed message to " + value);
+                    ConfigManager.updateMessage(value.trim());
+                    if(ConfigManager.getConfig().isDebug) ConfigStorage.LOGGER.info("changed message to " + value.trim());
                 }
                 case "color" -> {
                     int rgb = parseRGB(value);
@@ -192,6 +202,14 @@ public class ConfigInputScreen extends Screen {
                     AbstractClockWidget.color = finalColor;
                     ConfigManager.updateColor(finalColor);
                 }
+                case "background color" -> {
+                    int rgb = parseRGB(value);
+                    int finalColor = (previewAlpha << 24) | rgb;
+                    AbstractClockWidget.backgroundColor = finalColor;
+                    ConfigManager.updateBackgroundColor(finalColor);
+                }
+
+
             }
 
             clockWidget.updateHitbox();
@@ -224,13 +242,28 @@ public class ConfigInputScreen extends Screen {
 
         @Override
         protected void applyValue() {
-            // Update previewAlpha
+            // Convert slider value (0.0–1.0) into alpha (0–255)
             previewAlpha = (int) Math.round(value * 255);
 
-            // Update the actual clock color immediately
-            AbstractClockWidget.color = (previewAlpha << 24) | previewRGB;
+            // Combine alpha + RGB into final ARGB color
+            int finalColor = (previewAlpha << 24) | previewRGB;
+
+            // Apply to the correct target depending on segment
+            if ("color".equals(segmentName)) {
+                AbstractClockWidget.color = finalColor;
+                ConfigManager.updateColor(finalColor);
+            }
+            else if ("background color".equals(segmentName)) {
+                if (((finalColor >>> 24) & 0xFF) == 0x00) ConfigStorage.LOGGER.info("opacity is set to 0 -> disabling background opacity");
+                clockWidget.updateHitbox();
+                AbstractClockWidget.backgroundColor = finalColor;
+                ConfigManager.updateBackgroundColor(finalColor);
+            }
+
+            // Update widget hitbox/rendering
             clockWidget.updateHitbox();
         }
+
     }
 
 
@@ -256,19 +289,18 @@ public class ConfigInputScreen extends Screen {
     public void onClose() {
         super.onClose();
 
-        // Save color when closing
-        if ("color".equals(segmentName)) {
-            ConfigManager.updateColor(AbstractClockWidget.color);
-        }
-
         this.minecraft.setScreen(parentScreen);
         ConfigManager.updateX(AbstractClockWidget.x);
         ConfigManager.updateY(AbstractClockWidget.y);
         ConfigManager.updateWidth(AbstractClockWidget.width);
         ConfigManager.updateHeight(AbstractClockWidget.height);
         ConfigManager.updateScale(AbstractClockWidget.scale);
+
         ConfigManager.updateColor(AbstractClockWidget.color);
+        ConfigManager.updateBackgroundColor(AbstractClockWidget.backgroundColor);
+
         ConfigManager.updateShadow(shadow);
+        ConfigManager.updateMessage(message.getString());
     }
 
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "clockin",
-  "version": "0.0.2-26.1-snapshot-6",
+  "version": "$version",
   "name": "clockIn",
   "description": "a simple mod that adds a simple clock hud",
   "authors": [
@@ -14,7 +14,7 @@
   },
   "mixins": [
     {
-      "config": "clockIn.mixins.json",
+      "config": "ClockIn.mixins.json",
       "environment": "client"
     }
   ],

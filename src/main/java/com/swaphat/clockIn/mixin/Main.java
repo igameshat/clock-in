@@ -1,6 +1,6 @@
 package com.swaphat.clockIn.mixin;
 
-import com.swaphat.clockIn.Config.ConfigStorage;
+import com.swaphat.clockIn.config.ConfigStorage;
 import net.minecraft.client.Minecraft;
 
 
@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.swaphat.clockIn.Config.ConfigManager.loadConfig;
-import static com.swaphat.clockIn.Config.ConfigManager.saveConfig;
+import static com.swaphat.clockIn.config.ConfigManager.loadConfig;
+import static com.swaphat.clockIn.config.ConfigManager.saveConfig;
 
 
 @Mixin(Minecraft.class)

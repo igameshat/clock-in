@@ -1,7 +1,7 @@
 package com.swaphat.clockIn.clock.screen;
 
-import com.swaphat.clockIn.Config.ConfigManager;
-import com.swaphat.clockIn.Config.ConfigStorage;
+import com.swaphat.clockIn.config.ConfigManager;
+import com.swaphat.clockIn.config.ConfigStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -75,12 +75,14 @@ public class ClockMovingScreen extends Screen {
     protected void init() {
         super.init();
         this.addRenderableWidget(clockWidget);
-        ConfigStorage.LOGGER.info(ConfigManager.getConfig().x+ " "
-                +ConfigManager.getConfig().y+" "+
+        if(ConfigManager.getConfig().isDebug) ConfigStorage.LOGGER.info(ConfigManager.getConfig().x+ " "+
+                ConfigManager.getConfig().y+" "+
                 ConfigManager.getConfig().width+" "+
                 ConfigManager.getConfig().height+" "+
-                Component.literal(ConfigManager.getConfig().message)+" "+
-                ConfigManager.getConfig().color);
+                ConfigManager.getConfig().message+" "+
+                ConfigManager.getConfig().color+" "+
+                ConfigManager.getConfig().backgroundColor
+        );
         this.addRenderableWidget(configWidget);
         this.addRenderableWidget(textWidget);
         clockWidget.isInHUD = true;
