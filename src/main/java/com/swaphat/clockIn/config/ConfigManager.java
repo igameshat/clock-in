@@ -37,6 +37,7 @@ public class ConfigManager {
     }
 
     public static void loadConfig() {
+        if(ConfigStorage.isDebug) ConfigStorage.LOGGER.info("loading config");
         File file = getConfigFile();
 
         if (file.exists()) {
@@ -56,6 +57,7 @@ public class ConfigManager {
     }
 
     public static void saveConfig() {
+        if(ConfigStorage.isDebug) ConfigStorage.LOGGER.info("saving config");
         if (config == null) {
             config = new ConfigStorage();
         }
@@ -114,4 +116,14 @@ public class ConfigManager {
         getConfig().backgroundColor = backgroundColor;
         saveConfig();
     }
+
+    public static void updateBackgroundPaddingX(float paddingX){
+        getConfig().backgroundPaddingX = paddingX;
+    }
+
+    public static void updateBackgroundPaddingY(float paddingY){
+        getConfig().backgroundPaddingY = paddingY;
+    }
+
+
 }

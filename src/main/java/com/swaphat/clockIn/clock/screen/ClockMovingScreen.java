@@ -19,6 +19,7 @@ public class ClockMovingScreen extends Screen {
         super(TITLE);
     }
 
+
     @Override
     public void renderBackground(final @NonNull GuiGraphics graphics, final int mouseX, final int mouseY, final float a) {
         if (this.minecraft.level == null) {
@@ -74,16 +75,9 @@ public class ClockMovingScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(clockWidget);
-        if(ConfigManager.getConfig().isDebug) ConfigStorage.LOGGER.info(ConfigManager.getConfig().x+ " "+
-                ConfigManager.getConfig().y+" "+
-                ConfigManager.getConfig().width+" "+
-                ConfigManager.getConfig().height+" "+
-                ConfigManager.getConfig().message+" "+
-                ConfigManager.getConfig().color+" "+
-                ConfigManager.getConfig().backgroundColor
-        );
         this.addRenderableWidget(configWidget);
+        this.addRenderableWidget(clockWidget);
+        if(ConfigStorage.isDebug) ConfigStorage.LOGGER.info("{} {} {} {} {} {} {}", ConfigManager.getConfig().x, ConfigManager.getConfig().y, ConfigManager.getConfig().width, ConfigManager.getConfig().height, ConfigManager.getConfig().message, ConfigManager.getConfig().color, ConfigManager.getConfig().backgroundColor);
         this.addRenderableWidget(textWidget);
         clockWidget.isInHUD = true;
     }

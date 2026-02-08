@@ -25,24 +25,25 @@ public class IngameHudMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void addWidgetOnInit(CallbackInfo ci) {
+        ConfigStorage config = ConfigManager.getConfig();
         if (!(Minecraft.getInstance().screen instanceof PauseScreen)) {
-            ConfigStorage configStorage = ConfigManager.getConfig();
+
             clockWidget = new AbstractClockWidget(
-                    configStorage.x,
-                    configStorage.y,
-                    configStorage.width,
-                    configStorage.height,
-                    Component.literal(configStorage.message),
-                    configStorage.color
+                    config.x,
+                    config.y,
+                    config.width,
+                    config.height,
+                    Component.literal(config.message),
+                    config.color
             );
+            if (ConfigStorage.isDebug) ConfigStorage.LOGGER.info(config.x+"+"+ config.y);
         }
     }
 
     @Inject(method = "render", at = @At("TAIL"))
     private void onRender(GuiGraphics graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (clockWidget != null) {
-            clockWidget.renderWidget(graphics, 0, 0, deltaTracker.getRealtimeDeltaTicks());
-
+            clockWidget.renderWidget(graphics, (int) ConfigManager.getConfig().x, (int) ConfigManager.getConfig().y, deltaTracker.getRealtimeDeltaTicks());
         }
     }
 }

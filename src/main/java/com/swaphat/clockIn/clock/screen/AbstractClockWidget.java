@@ -1,6 +1,7 @@
 package com.swaphat.clockIn.clock.screen;
 
 import com.swaphat.clockIn.config.ConfigManager;
+import com.swaphat.clockIn.config.ConfigStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -22,19 +23,17 @@ public class AbstractClockWidget extends AbstractWidget {
     protected static float scale;
     protected static Component message;
     protected static int color;
-    protected static boolean shadow = ConfigManager.getConfig().shadow;
+    protected static ConfigStorage config = ConfigManager.getConfig();
+    protected static boolean shadow = config.shadow;
+    protected static float backgroundPaddingX = config.backgroundPaddingX;
+    protected static float backgroundPaddingY = config.backgroundPaddingY;
+
 
 
     public boolean isInHUD = false;
 
 
     public AbstractClockWidget(float x, float y, float width, float height, Component message, int color) {
-        // if clock out of bounds: fix it
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        if(x > Minecraft.getInstance().getWindow().getGuiScaledWidth()) x = Minecraft.getInstance().getWindow().getGuiScaledWidth() - Minecraft.getInstance().font.width(message.getString().replace("%time%", LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
-        if(y > Minecraft.getInstance().getWindow().getScreenHeight()) y = Minecraft.getInstance().getWindow().getScreenHeight() - Minecraft.getInstance().font.lineHeight;
-
         super((int) x, (int) y, (int) width, (int) height, Component.nullToEmpty(message.getString().replace("%time%", LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")))));
         AbstractClockWidget.x = x;
         AbstractClockWidget.y = y;
@@ -42,9 +41,12 @@ public class AbstractClockWidget extends AbstractWidget {
         AbstractClockWidget.color = color;
         AbstractClockWidget.width = width;
         AbstractClockWidget.height = height;
-        AbstractClockWidget.scale = ConfigManager.getConfig().scale;
-        AbstractClockWidget.backgroundColor = ConfigManager.getConfig().backgroundColor;
+        AbstractClockWidget.scale = config.scale;
+        AbstractClockWidget.backgroundColor = config.backgroundColor;
+        AbstractClockWidget.backgroundPaddingX = config.backgroundPaddingX;
+        AbstractClockWidget.backgroundPaddingY = config.backgroundPaddingY;
 
+        // if clock out of bounds by default: fix it
         updateHitbox();
     }
 
@@ -60,26 +62,39 @@ public class AbstractClockWidget extends AbstractWidget {
             int mouseY,
             float partialTicks
     ) {
+        // Get fresh config values each render
+        config = ConfigManager.getConfig();
+        backgroundPaddingX = config.backgroundPaddingX;
+        backgroundPaddingY = config.backgroundPaddingY;
+        backgroundColor = config.backgroundColor;
+        shadow = config.shadow;
+
         boundsCheckAndFix();
         updateHitbox();
 
         if (((backgroundColor >>> 24) & 0xFF) != 0x00) {
             graphics.fill(
-                    (int) (x - 2 * scale), (int) (y - 2 * scale),
-                    (int) (x + Minecraft.getInstance().font.width(getRenderedText()) * scale + 4 * scale), (int) (y + Minecraft.getInstance().font.lineHeight * scale + 4 * scale),
+                    (int)(x),
+                    (int)(y),
+                    (int)(x + Minecraft.getInstance().font.width(getRenderedText()) * scale + backgroundPaddingX * scale * 2),
+                    (int)(y + Minecraft.getInstance().font.lineHeight * scale + backgroundPaddingY * scale * 2),
                     backgroundColor
             );
         }
 
 
         graphics.pose().pushMatrix();
-        graphics.pose().translate(x, y, graphics.pose());
-        graphics.pose().scale(scale, scale, graphics.pose());
+        // Translate to position + padding offset, then scale
+        graphics.pose().translate(
+                x + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? backgroundPaddingX * scale : 0),
+                y + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? backgroundPaddingY * scale : 0)
+        );
+        graphics.pose().scale(scale, scale);
         graphics.drawString(
                 Minecraft.getInstance().font,
                 getRenderedText(),
-                (((backgroundColor >>> 24) & 0xFF) != 0x00 ? 2 : 0), // padding
-                (((backgroundColor >>> 24) & 0xFF) != 0x00 ? 2 : 0), // padding
+                0,
+                0,
                 color,
                 shadow
         );
@@ -119,8 +134,8 @@ public class AbstractClockWidget extends AbstractWidget {
         int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
         int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
 
-        int width = (int) ((Minecraft.getInstance().font.width(getRenderedText()) + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? 4 : 0)) * scale);
-        int height = (int) ((Minecraft.getInstance().font.lineHeight + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? 4 : 0)) * scale);
+        int width = (int) ((Minecraft.getInstance().font.width(getRenderedText()) + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? backgroundPaddingX * 2 : 0)) * scale);
+        int height = (int) ((Minecraft.getInstance().font.lineHeight + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? backgroundPaddingY * 2 : 0)) * scale);
 
         if (x < 0) x = 0;
         if (y < 0) y = 0;
@@ -133,8 +148,8 @@ public class AbstractClockWidget extends AbstractWidget {
 
     /** MUST BE CALLED WHENEVER TEXT OR POS OR SCALE CHANGES */
     void updateHitbox() {
-        width = (Minecraft.getInstance().font.width(getRenderedText()) + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? 4 : 0)) * scale;
-        height = (Minecraft.getInstance().font.lineHeight + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? 4 : 0)) * scale;
+        width = (Minecraft.getInstance().font.width(getRenderedText()) + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? backgroundPaddingX * 2 : 0)) * scale;
+        height = (Minecraft.getInstance().font.lineHeight + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? backgroundPaddingY * 2 : 0)) * scale;
 
         this.setPosition((int) x, (int) y);
         this.setWidth((int) width);
