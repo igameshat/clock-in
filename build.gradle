@@ -106,12 +106,8 @@ modrinth {
 		// The type can either be `project` or `version`
 		optional.version "modmenu", "${project.modmenu_version}" // Creates a new optional dependency on this specific version of Sodium
 	}
-	changelog = """
-    ## Changes
-    - fixed clock spawning on 0,0 on first load of game regardless of config now first appears where it should in the place set by the config
-    - added config wrapping when config goes out of screen
-    - added the option to edit background's padding size for x and y
-    - sorted some ui things so now config would be more accessible and easy to use
-    - fixed shadow button being in the corner of the screen instead of next to the text box
-    """
+	changelog =
+"""
+bumped version to 26.1-snapshot-7
+"""
 }
