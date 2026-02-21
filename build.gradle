@@ -108,6 +108,6 @@ modrinth {
 	}
 	changelog =
 """
-bumped version to 26.1-snapshot-8
+bumped version to 26.1-snapshot-9
 """
 }
