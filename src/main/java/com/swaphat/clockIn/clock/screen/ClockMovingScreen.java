@@ -3,7 +3,7 @@ package com.swaphat.clockIn.clock.screen;
 import com.swaphat.clockIn.config.ConfigManager;
 import com.swaphat.clockIn.config.ConfigStorage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
@@ -19,18 +19,6 @@ public class ClockMovingScreen extends Screen {
         super(TITLE);
     }
 
-
-    @Override
-    public void renderBackground(final @NonNull GuiGraphics graphics, final int mouseX, final int mouseY, final float a) {
-        if (this.minecraft.level == null) {
-            this.renderPanorama(graphics, a);
-        }
-
-        this.renderBlurredBackground(graphics);
-        this.renderMenuBackground(graphics);
-
-        this.minecraft.gui.renderDeferredSubtitles();
-    }
 
     AbstractClockWidget clockWidget = new AbstractClockWidget(
             ConfigManager.getConfig().x,
@@ -56,8 +44,8 @@ public class ClockMovingScreen extends Screen {
 
     ) {
         @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float a) {
-            graphics.drawCenteredString(
+        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+            graphics.centeredText(
                     Minecraft.getInstance().font,
                     "press esc to close",
                     Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2,

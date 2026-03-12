@@ -6,7 +6,7 @@ import com.swaphat.clockIn.clock.screen.AbstractClockWidget;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,10 +40,10 @@ public class IngameHudMixin {
         }
     }
 
-    @Inject(method = "render", at = @At("TAIL"))
-    private void onRender(GuiGraphics graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At("TAIL"))
+    private void onExtractRenderState(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (clockWidget != null) {
-            clockWidget.renderWidget(graphics, (int) ConfigManager.getConfig().x, (int) ConfigManager.getConfig().y, deltaTracker.getRealtimeDeltaTicks());
+            clockWidget.extractRenderState(graphics, (int) ConfigManager.getConfig().x, (int) ConfigManager.getConfig().y, deltaTracker.getRealtimeDeltaTicks());
         }
     }
 }

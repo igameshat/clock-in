@@ -4,7 +4,7 @@ import com.swaphat.clockIn.config.ConfigManager;
 import com.swaphat.clockIn.config.ConfigStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -57,8 +57,9 @@ public class AbstractConfigWidget extends AbstractWidget {
         this.height = lineHeight;
     }
 
+
     @Override
-    protected void renderWidget(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         updateSegments();
 
         int drawX = (int) x;
@@ -97,11 +98,11 @@ public class AbstractConfigWidget extends AbstractWidget {
                 int textPartX = drawX + font.width(prefix);
 
                 // Draw prefix in normal color
-                graphics.drawString(font, prefix, prefixX, drawY, color);
+                graphics.text(font, prefix, prefixX, drawY, color);
 
                 // Draw text in brackets with the actual text color
                 int textColor = ConfigManager.getConfig().color;
-                graphics.drawString(font, textPart, textPartX, drawY, textColor);
+                graphics.text(font, textPart, textPartX, drawY, textColor);
 
             } else {
                 String text = switch (name) {
@@ -112,7 +113,7 @@ public class AbstractConfigWidget extends AbstractWidget {
                     default -> "";
                 };
 
-                graphics.drawString(font, text, drawX, drawY, color);
+                graphics.text(font, text, drawX, drawY, color);
             }
 
             // Click detection (uses wrapped coordinates)
@@ -145,7 +146,6 @@ public class AbstractConfigWidget extends AbstractWidget {
                     ConfigManager.getConfig().debugColor);
         }
     }
-
 
     @Override
     public void onClick(@NonNull MouseButtonEvent event, boolean doubleClick) {

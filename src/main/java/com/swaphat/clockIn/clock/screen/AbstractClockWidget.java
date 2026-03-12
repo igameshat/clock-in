@@ -3,7 +3,7 @@ package com.swaphat.clockIn.clock.screen;
 import com.swaphat.clockIn.config.ConfigManager;
 import com.swaphat.clockIn.config.ConfigStorage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -53,52 +53,6 @@ public class AbstractClockWidget extends AbstractWidget {
     public static String getRenderedText() {
         return message.getString()
                 .replace("%time%", LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-    }
-
-    @Override
-    public void renderWidget(
-            @NonNull GuiGraphics graphics,
-            int mouseX,
-            int mouseY,
-            float partialTicks
-    ) {
-        // Get fresh config values each render
-        config = ConfigManager.getConfig();
-        backgroundPaddingX = config.backgroundPaddingX;
-        backgroundPaddingY = config.backgroundPaddingY;
-        backgroundColor = config.backgroundColor;
-        shadow = config.shadow;
-
-        boundsCheckAndFix();
-        updateHitbox();
-
-        if (((backgroundColor >>> 24) & 0xFF) != 0x00) {
-            graphics.fill(
-                    (int)(x),
-                    (int)(y),
-                    (int)(x + Minecraft.getInstance().font.width(getRenderedText()) * scale + backgroundPaddingX * scale * 2),
-                    (int)(y + Minecraft.getInstance().font.lineHeight * scale + backgroundPaddingY * scale * 2),
-                    backgroundColor
-            );
-        }
-
-
-        graphics.pose().pushMatrix();
-        // Translate to position + padding offset, then scale
-        graphics.pose().translate(
-                x + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? backgroundPaddingX * scale : 0),
-                y + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? backgroundPaddingY * scale : 0)
-        );
-        graphics.pose().scale(scale, scale);
-        graphics.drawString(
-                Minecraft.getInstance().font,
-                getRenderedText(),
-                0,
-                0,
-                color,
-                shadow
-        );
-        graphics.pose().popMatrix();
     }
 
     public static void boundsCheckAndFix() {
@@ -159,6 +113,47 @@ public class AbstractClockWidget extends AbstractWidget {
 
     @Override
     protected void updateWidgetNarration(@NonNull NarrationElementOutput output) {}
+
+    @Override
+    protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        // Get fresh config values each render
+        config = ConfigManager.getConfig();
+        backgroundPaddingX = config.backgroundPaddingX;
+        backgroundPaddingY = config.backgroundPaddingY;
+        backgroundColor = config.backgroundColor;
+        shadow = config.shadow;
+
+        boundsCheckAndFix();
+        updateHitbox();
+
+        if (((backgroundColor >>> 24) & 0xFF) != 0x00) {
+            graphics.fill(
+                    (int)(x),
+                    (int)(y),
+                    (int)(x + Minecraft.getInstance().font.width(getRenderedText()) * scale + backgroundPaddingX * scale * 2),
+                    (int)(y + Minecraft.getInstance().font.lineHeight * scale + backgroundPaddingY * scale * 2),
+                    backgroundColor
+            );
+        }
+
+
+        graphics.pose().pushMatrix();
+        // Translate to position + padding offset, then scale
+        graphics.pose().translate(
+                x + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? backgroundPaddingX * scale : 0),
+                y + (((backgroundColor >>> 24) & 0xFF) != 0x00 ? backgroundPaddingY * scale : 0)
+        );
+        graphics.pose().scale(scale, scale);
+        graphics.text(
+                Minecraft.getInstance().font,
+                getRenderedText(),
+                0,
+                0,
+                color,
+                shadow
+        );
+        graphics.pose().popMatrix();
+    }
 
     @Override
     public void onClick(final @NonNull MouseButtonEvent event, final boolean doubleClick) {

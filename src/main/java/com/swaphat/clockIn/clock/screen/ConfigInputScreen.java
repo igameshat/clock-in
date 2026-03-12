@@ -3,7 +3,7 @@ package com.swaphat.clockIn.clock.screen;
 import com.swaphat.clockIn.config.ConfigManager;
 import com.swaphat.clockIn.config.ConfigStorage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -89,9 +89,10 @@ public class ConfigInputScreen extends Screen {
                     })
             {
                 @Override
-                protected void renderContents(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float a) {
+                protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
                     graphics.fill(centerX + 55, centerY - 30, centerX + 55 + shadowButtonWidth, centerY - 10, shadow ? 0x8800FF00 : 0x88FF0000);
-                    graphics.drawString(font, "shadow", (shadowButtonX + shadowButtonWidth/2) - font.width("shadow")/2, centerY - 24, 0xFFFFFFFF,shadow);
+                    graphics.text(font, "shadow", (shadowButtonX + shadowButtonWidth/2) - font.width("shadow")/2, centerY - 24, 0xFFFFFFFF,shadow);
+
                 }
             });
 
@@ -159,7 +160,7 @@ public class ConfigInputScreen extends Screen {
     }
 
     @Override
-    public void render(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         graphics.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
 
         if ("text info".equals(segmentName)) {
@@ -167,10 +168,10 @@ public class ConfigInputScreen extends Screen {
             int previewColor = (previewAlpha << 24) | previewRGB;
 
             // Title
-            graphics.drawCenteredString(font, title, width / 2, height / 2 - 130, 0xFFFFFFFF);
+            graphics.centeredText(font, title, width / 2, height / 2 - 130, 0xFFFFFFFF);
 
             // Hint text at top
-            graphics.drawCenteredString(
+            graphics.centeredText(
                     font,
                     Component.literal("use %time% to insert current time"),
                     width / 2,
@@ -179,35 +180,35 @@ public class ConfigInputScreen extends Screen {
             );
 
             // Label for opacity slider
-            graphics.drawCenteredString(font, Component.literal("Text Opacity"), width / 2, height / 2 - 90, 0xFFFFFFFF);
+            graphics.centeredText(font, Component.literal("Text Opacity"), width / 2, height / 2 - 90, 0xFFFFFFFF);
 
             // Label for text format input (with more padding from slider)
-            graphics.drawCenteredString(font, Component.literal("Text Format"), width / 2, height / 2 - 45, 0xFFFFFFFF);
+            graphics.centeredText(font, Component.literal("Text Format"), width / 2, height / 2 - 45, 0xFFFFFFFF);
 
             // Label for color input (with padding from text format)
-            graphics.drawCenteredString(font, Component.literal("Text Color"), width / 2, height / 2 - 5, 0xFFFFFFFF);
+            graphics.centeredText(font, Component.literal("Text Color"), width / 2, height / 2 - 5, 0xFFFFFFFF);
 
             // Preview box with colored text
             String previewText = inputBox.getValue().isEmpty() ? message.getString() : inputBox.getValue();
             graphics.fill(width / 2 - 100, height / 2 + 45, width / 2 + 100, height / 2 + 75, config.backgroundColor);
 
-            graphics.drawString(font, previewText, width / 2 - font.width(previewText) / 2, height / 2 + 55, previewColor, shadow);
+            graphics.text(font, previewText, width / 2 - font.width(previewText) / 2, height / 2 + 55, previewColor, shadow);
 
         } else if ("background".equals(segmentName)) {
             previewRGB = parseRGB(inputBox.getValue());
             int previewColor = (previewAlpha << 24) | previewRGB;
 
             // Title
-            graphics.drawCenteredString(font, title, width / 2, height / 2 - 120, 0xFFFFFFFF);
+            graphics.centeredText(font, title, width / 2, height / 2 - 120, 0xFFFFFFFF);
 
             // Label for opacity slider
-            graphics.drawCenteredString(font, Component.literal("Background Opacity"), width / 2, height / 2 - 105, 0xFFFFFFFF);
+            graphics.centeredText(font, Component.literal("Background Opacity"), width / 2, height / 2 - 105, 0xFFFFFFFF);
 
             // Label for color input
-            graphics.drawCenteredString(font, Component.literal("Background Color"), width / 2, height / 2 - 70, 0xFFFFFFFF);
+            graphics.centeredText(font, Component.literal("Background Color"), width / 2, height / 2 - 70, 0xFFFFFFFF);
 
             // Label for padding inputs
-            graphics.drawCenteredString(font, Component.literal("Background Padding"), width / 2, height / 2 - 25, 0xFFFFFFFF);
+            graphics.centeredText(font, Component.literal("Background Padding"), width / 2, height / 2 - 25, 0xFFFFFFFF);
 
             float paddingX = paddingXBox != null ? parsePadding(paddingXBox.getValue()) : config.backgroundPaddingX;
             float paddingY = paddingYBox != null ? parsePadding(paddingYBox.getValue()) : config.backgroundPaddingY;
@@ -227,13 +228,13 @@ public class ConfigInputScreen extends Screen {
             graphics.fill(boxX, boxY, boxX + boxWidth, boxY + boxHeight, previewColor);
 
             // Draw sample text centered within the padding
-            graphics.drawString(font, config.message, boxX + (int)paddingX, boxY + (int)paddingY, 0xFFFFFFFF);
+            graphics.text(font, config.message, boxX + (int)paddingX, boxY + (int)paddingY, 0xFFFFFFFF);
 
         } else {
-            graphics.drawCenteredString(font, title, width / 2, height / 2 - 30, 0xFFFFFFFF);
+            graphics.centeredText(font, title, width / 2, height / 2 - 30, 0xFFFFFFFF);
         }
 
-        super.render(graphics, mouseX, mouseY, delta);
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
     }
 
     @Override
