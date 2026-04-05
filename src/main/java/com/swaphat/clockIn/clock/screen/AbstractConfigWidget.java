@@ -38,19 +38,25 @@ public class AbstractConfigWidget extends AbstractWidget {
         updateSegments();
     }
 
+    private static String formatCoord(float v) {
+        // Always show exactly 2 decimal places for stable width
+        return String.format("%.2f", v);
+    }
+
     private void updateSegments() {
         segments.clear();
 
-        segments.put("x", font.width(("x: " + ConfigManager.getConfig().x)));
-        segments.put("y", font.width(("y: " + ConfigManager.getConfig().y)));
-        segments.put("scale", font.width("scale: " + ConfigManager.getConfig().scale));
+        String xLabel   = "x: "     + formatCoord(AbstractClockWidget.x);
+        String yLabel   = "y: "     + formatCoord(AbstractClockWidget.y);
+        String scaleLabel = "scale: " + ConfigManager.getConfig().scale;
+        String formatLabel = "format: " + AbstractClockWidget.getRenderedText();
+        String bgLabel  = "background";
 
-        // Merged text info segment with brackets around text
-        String textInfoLabel = "text info: " + AbstractClockWidget.getRenderedText();
-        segments.put("text info", font.width(textInfoLabel));
-
-        // Merged background segment
-        segments.put("background", font.width("background"));
+        segments.put("x",          font.width(xLabel));
+        segments.put("y",          font.width(yLabel));
+        segments.put("scale",      font.width(scaleLabel));
+        segments.put("format",     font.width(formatLabel));
+        segments.put("background", font.width(bgLabel));
 
         this.width = segments.values().stream().mapToInt(Integer::intValue).sum()
                 + font.width(" ") * (segments.size() - 1);
@@ -82,16 +88,16 @@ public class AbstractConfigWidget extends AbstractWidget {
                 case "x" -> 0x8800FFFF;
                 case "y" -> 0x88FF00FF;
                 case "scale" -> 0x880000FF;
-                case "text info" -> 0x88FFAA00; // Orange background for merged segment
-                case "background" -> ConfigManager.getConfig().backgroundColor; // Use actual background color
+                case "format" -> 0x88FFAA00;
+                case "background" -> ConfigManager.getConfig().backgroundColor;
                 default -> 0x88000000;
             };
 
             graphics.fill(drawX, drawY, drawX + segWidth, drawY + lineHeight, bgColor);
 
-            // Render text with special handling for "text info"
-            if ("text info".equals(name)) {
-                String prefix = "text info: ";
+            // Render text with special handling for "format"
+            if ("format".equals(name)) {
+                String prefix = "format: ";
                 String textPart = AbstractClockWidget.getRenderedText();
 
                 int prefixX = drawX;
@@ -100,14 +106,14 @@ public class AbstractConfigWidget extends AbstractWidget {
                 // Draw prefix in normal color
                 graphics.text(font, prefix, prefixX, drawY, color);
 
-                // Draw text in brackets with the actual text color
+                // Draw text in the actual text color
                 int textColor = ConfigManager.getConfig().color;
                 graphics.text(font, textPart, textPartX, drawY, textColor);
 
             } else {
                 String text = switch (name) {
-                    case "x" -> ("x: " + AbstractClockWidget.x);
-                    case "y" -> ("y: " + AbstractClockWidget.y);
+                    case "x" -> "x: " + formatCoord(AbstractClockWidget.x);
+                    case "y" -> "y: " + formatCoord(AbstractClockWidget.y);
                     case "scale" -> "scale: " + AbstractClockWidget.scale;
                     case "background" -> "background";
                     default -> "";

@@ -51,8 +51,9 @@ public class AbstractClockWidget extends AbstractWidget {
     }
 
     public static String getRenderedText() {
-        return message.getString()
-                .replace("%time%", LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        return ConfigStorage.format12Hour
+                ? message.getString().replace("%time%", LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a")))
+                : message.getString().replace("%time%", LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
     }
 
     public static void boundsCheckAndFix() {

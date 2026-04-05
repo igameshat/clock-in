@@ -5,10 +5,13 @@ import com.swaphat.clockIn.config.ConfigStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.jspecify.annotations.NonNull;
@@ -28,6 +31,7 @@ public class ConfigInputScreen extends Screen {
     private EditBox colorInputBox;
     private EditBox paddingXBox;
     private EditBox paddingYBox;
+    private PositionSliderWidget positionSliderWidget;
 
     private int previewRGB;
     private int previewAlpha;
@@ -46,7 +50,7 @@ public class ConfigInputScreen extends Screen {
         int centerX = width / 2;
         int centerY = height / 2;
 
-        if ("text info".equals(segmentName)) {
+        if ("format".equals(segmentName)) {
             // Opacity slider (at the top)
             int currentColor = AbstractClockWidget.color;
             previewAlpha = (currentColor >>> 24) & 0xFF;
@@ -55,28 +59,26 @@ public class ConfigInputScreen extends Screen {
             OpacitySlider opacitySlider = new OpacitySlider(centerX - 100, centerY - 75, 200, 20, previewAlpha);
             addRenderableWidget(opacitySlider);
 
-            // Text format input (below slider with padding)
-            int boxWidth = 150;
-            int inputBoxX = centerX - boxWidth / 2 - 25;
-            inputBox = new LimitedWidthEditBox(
-                    inputBoxX,
-                    centerY - 30,
-                    boxWidth,
-                    20,
-                    Component.empty(),
-                    boxWidth
-            );
-            inputBox.setValue(message.getString());
+            // Both buttons share the same width (Shadow text is wider, so use that for both)
+            // Layout: [ Shadow ] [ inputBox ] [ 12H ]
+            // The entire group is centered as one unit.
+            int gap = 5;
+            int boxWidth = 100;
+            int btnWidth = font.width("Shadow") + 6; // shared width for both buttons
+            int groupWidth = btnWidth + gap + boxWidth + gap + btnWidth;
+            int groupStartX = centerX - groupWidth / 2;
 
-            // Shadow toggle button (right next to text format)
-            int shadowButtonWidth = font.width(Component.literal("shadow")) + 6;
-            int shadowButtonX = inputBoxX + boxWidth + 5;  // Position right after inputBox with 5px gap
+            int shadowButtonX  = groupStartX;
+            int inputBoxX      = groupStartX + btnWidth + gap;
+            int twelveHrButtonX = inputBoxX + boxWidth + gap;
+
+            // Shadow toggle button — LEFT of input box
             this.addRenderableWidget(new Button(
                     shadowButtonX,
                     centerY - 30,
-                    shadowButtonWidth,
+                    btnWidth,
                     20,
-                    Component.literal("shadow"),
+                    Component.literal("Shadow"),
                     _ -> {
                         shadow = !shadow;
                         ConfigManager.updateShadow(shadow);
@@ -90,9 +92,47 @@ public class ConfigInputScreen extends Screen {
             {
                 @Override
                 protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-                    graphics.fill(centerX + 55, centerY - 30, centerX + 55 + shadowButtonWidth, centerY - 10, shadow ? 0x8800FF00 : 0x88FF0000);
-                    graphics.text(font, "shadow", (shadowButtonX + shadowButtonWidth/2) - font.width("shadow")/2, centerY - 24, 0xFFFFFFFF,shadow);
+                    graphics.fill(shadowButtonX, centerY - 30, shadowButtonX + btnWidth, centerY - 10,
+                            shadow ? 0x8800FF00 : 0x88FF0000);
+                    graphics.text(font, "Shadow",
+                            shadowButtonX + btnWidth / 2 - font.width("Shadow") / 2,
+                            centerY - 24, 0xFFFFFFFF, shadow);
+                }
+            });
 
+            // Text format input box — center of the group
+            inputBox = new LimitedWidthEditBox(
+                    inputBoxX,
+                    centerY - 30,
+                    boxWidth,
+                    20,
+                    Component.empty(),
+                    boxWidth
+            );
+            inputBox.setValue(message.getString());
+
+            // 12H toggle button — RIGHT of input box, same size as Shadow
+            this.addRenderableWidget(new Button(
+                    twelveHrButtonX,
+                    centerY - 30,
+                    btnWidth,
+                    20,
+                    Component.literal("12H"),
+                    _ -> ConfigManager.updateFormat12Hour(!ConfigStorage.format12Hour),
+                    new Button.CreateNarration() {
+                        @Override
+                        public @NonNull MutableComponent createNarrationMessage(@NonNull Supplier<MutableComponent> defaultNarrationSupplier) {
+                            return Component.literal("");
+                        }
+                    })
+            {
+                @Override
+                protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+                    graphics.fill(twelveHrButtonX, centerY - 30, twelveHrButtonX + btnWidth, centerY - 10,
+                            ConfigStorage.format12Hour ? 0x8800FF00 : 0x88FF0000);
+                    graphics.text(font, "12H",
+                            twelveHrButtonX + btnWidth / 2 - font.width("12H") / 2,
+                            centerY - 24, 0xFFFFFFFF, false);
                 }
             });
 
@@ -140,6 +180,18 @@ public class ConfigInputScreen extends Screen {
             addRenderableWidget(paddingYBox);
             setInitialFocus(inputBox);
 
+        } else if ("x".equals(segmentName)) {
+            int screenW = minecraft.getWindow().getGuiScaledWidth();
+            int maxX = screenW - (int)(Minecraft.getInstance().font.width(AbstractClockWidget.getRenderedText()) * AbstractClockWidget.scale);
+            positionSliderWidget = new PositionSliderWidget(centerX - 100, centerY, 200, 20, "x", AbstractClockWidget.x, 0, maxX);
+            addRenderableWidget(positionSliderWidget);
+
+        } else if ("y".equals(segmentName)) {
+            int screenH = minecraft.getWindow().getGuiScaledHeight();
+            int maxY = screenH - (int)(Minecraft.getInstance().font.lineHeight * AbstractClockWidget.scale);
+            positionSliderWidget = new PositionSliderWidget(centerX - 100, centerY, 200, 20, "y", AbstractClockWidget.y, 0, maxY);
+            addRenderableWidget(positionSliderWidget);
+
         } else {
             inputBox = new EditBox(font, centerX - 100, centerY, 200, 20, Component.empty());
             inputBox.setValue(getInitialValue());
@@ -163,7 +215,7 @@ public class ConfigInputScreen extends Screen {
     public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         graphics.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
 
-        if ("text info".equals(segmentName)) {
+        if ("format".equals(segmentName)) {
             previewRGB = parseRGB(colorInputBox.getValue());
             int previewColor = (previewAlpha << 24) | previewRGB;
 
@@ -239,12 +291,29 @@ public class ConfigInputScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (event.input() == 257 || event.input() == 335 || event.input() == 256) { // ENTER / NUMPAD ENTER / ESC
-            if ("text info".equals(segmentName)) {
+        int key = event.input();
+        boolean isEnterOrEsc = key == 257 || key == 335 || key == 256;
+
+        // If the position slider is in text-edit mode, let the widget handle
+        // the key first so it can commit/cancel before we close the screen.
+        if (positionSliderWidget != null && positionSliderWidget.isEditMode()) {
+            super.keyPressed(event); // routes to widget
+            // After the widget handled it: if still in edit mode (e.g. ESC just
+            // exited edit mode but shouldn't close), stay on screen.
+            if (positionSliderWidget.isEditMode()) return true;
+            // Widget exited edit mode — if Enter was pressed, close now.
+            if (key == 257 || key == 335) {
+                minecraft.setScreen(parentScreen);
+            }
+            return true;
+        }
+
+        if (isEnterOrEsc) {
+            if ("format".equals(segmentName)) {
                 applyTextInfo(inputBox.getValue(), colorInputBox.getValue());
             } else if ("background".equals(segmentName)) {
                 applyBackground(inputBox.getValue(), paddingXBox.getValue(), paddingYBox.getValue());
-            } else {
+            } else if (inputBox != null) {
                 applyValue(inputBox.getValue());
             }
             minecraft.setScreen(parentScreen);
@@ -355,7 +424,7 @@ public class ConfigInputScreen extends Screen {
 
     @Override
     public boolean isPauseScreen() {
-        return false;
+        return true;
     }
 
 
@@ -380,7 +449,7 @@ public class ConfigInputScreen extends Screen {
             int finalColor = (previewAlpha << 24) | previewRGB;
 
             // Apply to the correct target depending on segment
-            if ("text info".equals(segmentName)) {
+            if ("format".equals(segmentName)) {
                 AbstractClockWidget.color = finalColor;
                 ConfigManager.updateColor(finalColor);
             }
@@ -395,6 +464,148 @@ public class ConfigInputScreen extends Screen {
             clockWidget.updateHitbox();
         }
 
+    }
+
+
+    private class PositionSliderWidget extends AbstractWidget {
+
+        private final String axis;
+        private final float minVal;
+        private final float maxVal;
+
+        private float sliderValue;
+        private boolean dragging = false;
+
+        private boolean editMode = false;
+        private final StringBuilder textBuf = new StringBuilder();
+        private boolean cursorVisible = true;
+        private long lastCursorBlink = System.currentTimeMillis();
+
+        public PositionSliderWidget(int x, int y, int w, int h, String axis, float current, float minVal, float maxVal) {
+            super(x, y, w, h, Component.empty());
+            this.axis = axis;
+            this.minVal = minVal;
+            this.maxVal = maxVal;
+            this.sliderValue = maxVal > minVal ? (current - minVal) / (maxVal - minVal) : 0f;
+        }
+
+        private float currentValue() {
+            return minVal + sliderValue * (maxVal - minVal);
+        }
+
+        private void commit(float v) {
+            v = clamp(v, minVal, maxVal);
+            if ("x".equals(axis)) {
+                AbstractClockWidget.x = v;
+                ConfigManager.updateX(v);
+            } else {
+                AbstractClockWidget.y = v;
+                ConfigManager.updateY(v);
+            }
+            clockWidget.updateHitbox();
+        }
+
+        @Override
+        protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+            int wx = getX(), wy = getY(), ww = getWidth(), wh = getHeight();
+
+            if (editMode) {
+                // Text-box background
+                graphics.fill(wx, wy, wx + ww, wy + wh, 0xFF000000);
+                graphics.fill(wx + 1, wy + 1, wx + ww - 1, wy + wh - 1, 0xFF202020);
+
+                // Blinking cursor
+                long now = System.currentTimeMillis();
+                if (now - lastCursorBlink > 500) { cursorVisible = !cursorVisible; lastCursorBlink = now; }
+
+                String label = axis.toUpperCase() + ": ";
+                String display = textBuf.toString() + (cursorVisible ? "|" : " ");
+                String full = label + display;
+                int textX = wx + ww / 2 - font.width(full) / 2;
+                int textY = wy + wh / 2 - font.lineHeight / 2;
+                graphics.text(font, label, textX, textY, 0xFFAAAAAA, false);
+                graphics.text(font, display, textX + font.width(label), textY, 0xFFFFFFFF, false);
+
+            } else {
+                // Slider track
+                graphics.fill(wx, wy, wx + ww, wy + wh, 0xFF000000);
+                graphics.fill(wx + 1, wy + 1, wx + ww - 1, wy + wh - 1, 0xFF555555);
+
+                int fillW = (int)((ww - 2) * sliderValue);
+                if (fillW > 0) graphics.fill(wx + 1, wy + 1, wx + 1 + fillW, wy + wh - 1, 0xFF0088FF);
+
+                String label = axis.toUpperCase() + ": " + String.format("%.2f", currentValue());
+                graphics.text(font, label,
+                        wx + ww / 2 - font.width(label) / 2,
+                        wy + wh / 2 - font.lineHeight / 2,
+                        0xFFFFFFFF, false);
+            }
+        }
+
+        @Override
+        public void onClick(@NonNull MouseButtonEvent event, boolean doubleClick) {
+            if (doubleClick) {
+                editMode = true;
+                dragging = false;
+                textBuf.setLength(0);
+                textBuf.append((int) currentValue());
+            } else if (!editMode) {
+                dragging = true;
+                updateSliderFromMouse((float) event.x());
+            }
+        }
+
+        @Override
+        public void onDrag(@NonNull MouseButtonEvent event, double dx, double dy) {
+            if (!editMode && dragging) {
+                updateSliderFromMouse((float) event.x());
+            }
+        }
+
+        @Override
+        public void onRelease(@NonNull MouseButtonEvent event) {
+            dragging = false;
+        }
+
+        private void updateSliderFromMouse(float mouseX) {
+            float ratio = (mouseX - (getX() + 1)) / (float)(getWidth() - 2);
+            sliderValue = clamp(ratio, 0f, 1f);
+            commit(currentValue());
+        }
+
+        public boolean isEditMode() { return editMode; }
+
+        @Override
+        public boolean keyPressed(@NonNull KeyEvent event) {
+            if (!editMode) return false;
+            int key = event.input();
+            if (key == 256) { editMode = false; return true; } // ESC — exit edit mode, screen stays open
+            if (key == 257 || key == 335) { commitTextInput(); return true; } // ENTER — commit, screen will close
+            if (key == 259) { // BACKSPACE
+                if (!textBuf.isEmpty()) textBuf.deleteCharAt(textBuf.length() - 1);
+                return true;
+            }
+            // Digit keys: 48–57 = row 0–9, 320–329 = numpad 0–9
+            if ((key >= 48 && key <= 57) || (key >= 320 && key <= 329)) {
+                int digit = (key >= 320) ? key - 320 : key - 48;
+                textBuf.append((char)('0' + digit));
+                return true;
+            }
+            return false;
+        }
+
+        private void commitTextInput() {
+            try {
+                float v = Float.parseFloat(textBuf.toString());
+                v = clamp(v, minVal, maxVal);
+                sliderValue = (maxVal > minVal) ? (v - minVal) / (maxVal - minVal) : 0f;
+                commit(v);
+            } catch (NumberFormatException ignored) {}
+            editMode = false;
+        }
+
+        @Override
+        protected void updateWidgetNarration(@NonNull NarrationElementOutput output) {}
     }
 
 

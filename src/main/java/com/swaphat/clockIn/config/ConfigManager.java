@@ -125,5 +125,10 @@ public class ConfigManager {
         getConfig().backgroundPaddingY = paddingY;
     }
 
+    public static void updateFormat12Hour(boolean format12Hour){
+        ConfigStorage.format12Hour = format12Hour;
+        saveConfig();
+    }
+
 
 }

@@ -26,4 +26,6 @@ public class ConfigStorage {
     public static int debugColor = 0x8800FF00;
     public static final Logger LOGGER = LoggerFactory.getLogger("clock-in");
 
+    public static boolean format12Hour = false;
+
 }

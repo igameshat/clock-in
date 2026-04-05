@@ -107,5 +107,24 @@ modrinth {
 		optional.version "modmenu", "${project.modmenu_version}" // Creates a new optional dependency on this specific version of Sodium
 	}
 	changelog =
-"""${project.changelog}"""
+"""## bumped version to 26.1.1
+
+## Config Screen
+
+### 12-Hour Clock Toggle
+You can now switch between 12-hour and 24-hour time format directly from the config screen. Click the **format** segment to open the format editor, then hit the **12H** button to toggle. Green means on, red means off.
+
+### Smoother X / Y Controls
+The X and Y position fields have been replaced with **sliders**. Just click and drag to move the clock position in real time - no more typing coordinates manually.
+
+Need a precise value? **Double-click** the slider to type in an exact number. Press **Enter** to confirm or **ESC** to go back to the slider without changing anything.
+
+### Game Now Pauses
+Opening any config screen will now properly pause the game, the same way the clock moving screen already did.
+
+## Bug Fixes
+
+- **12-hour format preference now saves correctly** - previously the setting would reset every time you reloaded the world.
+- **Background padding now saves correctly** - padding X and Y values will no longer revert after closing the game.
+- **X and Y labels no longer flicker** - the coordinate display in the config bar now uses a fixed number of decimal places so the text width stays constant while dragging."""
 }
