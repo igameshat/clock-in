@@ -61,6 +61,10 @@ public class ClockMovingScreen extends Screen {
     };
 
     @Override
+    public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+    }
+
+    @Override
     protected void init() {
         super.init();
         this.addRenderableWidget(configWidget);
