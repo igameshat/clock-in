@@ -26,7 +26,7 @@ public class IngameHudMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void addWidgetOnInit(CallbackInfo ci) {
         ConfigStorage config = ConfigManager.getConfig();
-        if (!(Minecraft.getInstance().screen instanceof PauseScreen)) {
+        if (!(Minecraft.getInstance().gui.screen() instanceof PauseScreen)) {
 
             clockWidget = new AbstractClockWidget(
                     config.x,

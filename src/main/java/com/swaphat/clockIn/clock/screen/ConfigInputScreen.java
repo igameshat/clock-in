@@ -138,8 +138,8 @@ public class ConfigInputScreen extends Screen {
 
             // Color input (below text format with padding)
             colorInputBox = new EditBox(font, centerX - 100, centerY + 10, 200, 20, Component.empty());
-            assert Minecraft.getInstance().screen != null;
-            colorInputBox.setMaxLength(Minecraft.getInstance().screen.width);
+            assert Minecraft.getInstance().gui.screen() != null;
+            colorInputBox.setMaxLength(Minecraft.getInstance().gui.screen().width);
             colorInputBox.setHint(Component.literal("#RRGGBB"));
 
             colorInputBox.setValue(String.format("#%06X", previewRGB));
@@ -160,8 +160,8 @@ public class ConfigInputScreen extends Screen {
 
             // Color input
             inputBox = new EditBox(font, centerX - 100, centerY - 55, 200, 20, Component.empty());
-            assert Minecraft.getInstance().screen != null;
-            inputBox.setMaxLength(Minecraft.getInstance().screen.width);
+            assert Minecraft.getInstance().gui.screen() != null;
+            inputBox.setMaxLength(Minecraft.getInstance().gui.screen().width);
             inputBox.setHint(Component.literal("#RRGGBB"));
             inputBox.setValue(String.format("#%06X", previewRGB));
 
@@ -303,7 +303,7 @@ public class ConfigInputScreen extends Screen {
             if (positionSliderWidget.isEditMode()) return true;
             // Widget exited edit mode — if Enter was pressed, close now.
             if (key == 257 || key == 335) {
-                minecraft.setScreen(parentScreen);
+                minecraft.setScreenAndShow(parentScreen);
             }
             return true;
         }
@@ -316,7 +316,7 @@ public class ConfigInputScreen extends Screen {
             } else if (inputBox != null) {
                 applyValue(inputBox.getValue());
             }
-            minecraft.setScreen(parentScreen);
+            minecraft.setScreenAndShow(parentScreen);
             return true;
         }
         return super.keyPressed(event);
@@ -631,7 +631,7 @@ public class ConfigInputScreen extends Screen {
     public void onClose() {
         super.onClose();
 
-        this.minecraft.setScreen(parentScreen);
+        this.minecraft.setScreenAndShow(parentScreen);
         ConfigManager.updateX(AbstractClockWidget.x);
         ConfigManager.updateY(AbstractClockWidget.y);
         ConfigManager.updateWidth(AbstractClockWidget.width);

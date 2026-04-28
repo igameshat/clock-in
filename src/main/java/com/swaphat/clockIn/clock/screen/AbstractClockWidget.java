@@ -160,7 +160,7 @@ public class AbstractClockWidget extends AbstractWidget {
     public void onClick(final @NonNull MouseButtonEvent event, final boolean doubleClick) {
         if(!isInHUD){ // check if inside hud or in moving screen
 
-            Minecraft.getInstance().setScreen(new ClockMovingScreen());
+            Minecraft.getInstance().setScreenAndShow(new ClockMovingScreen());
         }
     }
 }

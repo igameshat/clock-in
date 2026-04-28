@@ -84,6 +84,5 @@ public class ClockMovingScreen extends Screen {
         ConfigManager.updateScale(AbstractClockWidget.scale);
         ConfigManager.updateColor(AbstractClockWidget.color);
         super.onClose();
-        this.minecraft.setScreen(null);
     }
 }

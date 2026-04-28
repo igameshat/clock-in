@@ -126,10 +126,10 @@ public class AbstractConfigWidget extends AbstractWidget {
             if (mouseXClick >= drawX && mouseXClick <= drawX + segWidth
                     && mouseYClick >= drawY && mouseYClick <= drawY + lineHeight) {
 
-                assert Minecraft.getInstance().screen != null;
-                Minecraft.getInstance().setScreen(
+                assert Minecraft.getInstance().gui.screen() != null;
+                Minecraft.getInstance().setScreenAndShow(
                         new ConfigInputScreen(
-                                Minecraft.getInstance().screen,
+                                Minecraft.getInstance().gui.screen(),
                                 clockWidget,
                                 name
                         )
