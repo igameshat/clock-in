@@ -17,7 +17,6 @@ public class Main {
     @Inject(at = @At("HEAD"), method = "run")
     private void init(CallbackInfo info) {
         ConfigStorage.LOGGER.info("Initializing clock-in");
-        // This code is injected into the start of Minecraft.run()V
         loadConfig();
 
     }

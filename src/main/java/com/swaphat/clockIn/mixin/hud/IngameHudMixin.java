@@ -35,11 +35,10 @@ public class IngameHudMixin {
                 Component.literal(config.message),
                 config.color
         );
-        if (ConfigStorage.isDebug) ConfigStorage.LOGGER.info(config.x + "+" + config.y);
     }
 
     @Inject(method = "extractRenderState", at = @At("TAIL"))
-    private void onExtractRenderState(DeltaTracker deltaTracker, boolean shouldRenderLevel, boolean resourcesLoaded, CallbackInfo ci, @Local GuiGraphicsExtractor graphics) {
+    private void onExtractRenderState(DeltaTracker deltaTracker, boolean shouldRenderLevel, boolean resourcesLoaded, CallbackInfo ci, @Local(name = "graphics") GuiGraphicsExtractor graphics) {
         if (clockWidget != null) {
             if (shouldRenderLevel && !(Minecraft.getInstance().gui.screen() instanceof PauseScreen)) {
                 clockWidget.extractRenderState(graphics, (int) ConfigManager.getConfig().x, (int) ConfigManager.getConfig().y, deltaTracker.getRealtimeDeltaTicks());

@@ -1,7 +1,6 @@
 package com.swaphat.clockIn.clock.screen;
 
 import com.swaphat.clockIn.config.ConfigManager;
-import com.swaphat.clockIn.config.ConfigStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -17,9 +16,9 @@ import java.util.Map;
 
 public class AbstractConfigWidget extends AbstractWidget {
 
-    protected float x, y;
-    protected int color;
-    protected double mouseXClick = -1, mouseYClick = -1;
+    protected final float x, y;
+    protected final int color;
+    protected  double mouseXClick = -1, mouseYClick = -1;
 
     private final Font font = Minecraft.getInstance().font;
     private final int lineHeight = font.lineHeight;
@@ -38,7 +37,7 @@ public class AbstractConfigWidget extends AbstractWidget {
         updateSegments();
     }
 
-    private static String formatCoord(float v) {
+    private static String formatCord(float v) {
         // Always show exactly 2 decimal places for stable width
         return String.format("%.2f", v);
     }
@@ -46,8 +45,8 @@ public class AbstractConfigWidget extends AbstractWidget {
     private void updateSegments() {
         segments.clear();
 
-        String xLabel   = "x: "     + formatCoord(AbstractClockWidget.x);
-        String yLabel   = "y: "     + formatCoord(AbstractClockWidget.y);
+        String xLabel   = "x: "     + formatCord(AbstractClockWidget.x);
+        String yLabel   = "y: "     + formatCord(AbstractClockWidget.y);
         String scaleLabel = "scale: " + ConfigManager.getConfig().scale;
         String formatLabel = "format: " + AbstractClockWidget.getRenderedText();
         String bgLabel  = "background";
@@ -100,11 +99,10 @@ public class AbstractConfigWidget extends AbstractWidget {
                 String prefix = "format: ";
                 String textPart = AbstractClockWidget.getRenderedText();
 
-                int prefixX = drawX;
                 int textPartX = drawX + font.width(prefix);
 
                 // Draw prefix in normal color
-                graphics.text(font, prefix, prefixX, drawY, color);
+                graphics.text(font, prefix, drawX, drawY, color);
 
                 // Draw text in the actual text color
                 int textColor = ConfigManager.getConfig().color;
@@ -112,8 +110,8 @@ public class AbstractConfigWidget extends AbstractWidget {
 
             } else {
                 String text = switch (name) {
-                    case "x" -> "x: " + formatCoord(AbstractClockWidget.x);
-                    case "y" -> "y: " + formatCoord(AbstractClockWidget.y);
+                    case "x" -> "x: " + formatCord(AbstractClockWidget.x);
+                    case "y" -> "y: " + formatCord(AbstractClockWidget.y);
                     case "scale" -> "scale: " + AbstractClockWidget.scale;
                     case "background" -> "background";
                     default -> "";
@@ -146,18 +144,12 @@ public class AbstractConfigWidget extends AbstractWidget {
         this.width = screenWidth;
         this.height = (drawY - (int) y) + lineHeight;
 
-        // Debug overlay
-        if (ConfigStorage.isDebug) {
-            graphics.fill((int) x, (int) y, (int) x + width, (int) y + height,
-                    ConfigManager.getConfig().debugColor);
-        }
     }
 
     @Override
     public void onClick(@NonNull MouseButtonEvent event, boolean doubleClick) {
         mouseXClick = event.x();
         mouseYClick = event.y();
-        if(ConfigStorage.isDebug) ConfigStorage.LOGGER.info("config click at: {}, {}", mouseXClick, mouseYClick);
     }
 
     @Override

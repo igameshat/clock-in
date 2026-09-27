@@ -50,153 +50,155 @@ public class ConfigInputScreen extends Screen {
         int centerX = width / 2;
         int centerY = height / 2;
 
-        if ("format".equals(segmentName)) {
-            // Opacity slider (at the top)
-            int currentColor = AbstractClockWidget.color;
-            previewAlpha = (currentColor >>> 24) & 0xFF;
-            previewRGB = currentColor & 0x00FFFFFF;
+        switch (segmentName) {
+            case "format" -> {
+                // Opacity slider (at the top)
+                int currentColor = AbstractClockWidget.color;
+                previewAlpha = (currentColor >>> 24) & 0xFF;
+                previewRGB = currentColor & 0x00FFFFFF;
 
-            OpacitySlider opacitySlider = new OpacitySlider(centerX - 100, centerY - 75, 200, 20, previewAlpha);
-            addRenderableWidget(opacitySlider);
+                OpacitySlider opacitySlider = new OpacitySlider(centerX - 100, centerY - 75, 200, 20, previewAlpha);
+                addRenderableWidget(opacitySlider);
 
-            // Both buttons share the same width (Shadow text is wider, so use that for both)
-            // Layout: [ Shadow ] [ inputBox ] [ 12H ]
-            // The entire group is centered as one unit.
-            int gap = 5;
-            int boxWidth = 100;
-            int btnWidth = font.width("Shadow") + 6; // shared width for both buttons
-            int groupWidth = btnWidth + gap + boxWidth + gap + btnWidth;
-            int groupStartX = centerX - groupWidth / 2;
+                // Both buttons share the same width (Shadow text is wider, so use that for both)
+                // Layout: [ Shadow ] [ inputBox ] [ 12H ]
+                // The entire group is centered as one unit.
+                int gap = 5;
+                int boxWidth = 100;
+                int btnWidth = font.width("Shadow") + 6; // shared width for both buttons
 
-            int shadowButtonX  = groupStartX;
-            int inputBoxX      = groupStartX + btnWidth + gap;
-            int twelveHrButtonX = inputBoxX + boxWidth + gap;
+                int groupWidth = btnWidth + gap + boxWidth + gap + btnWidth;
+                int groupStartX = centerX - groupWidth / 2;
 
-            // Shadow toggle button — LEFT of input box
-            this.addRenderableWidget(new Button(
-                    shadowButtonX,
-                    centerY - 30,
-                    btnWidth,
-                    20,
-                    Component.literal("Shadow"),
-                    _ -> {
-                        shadow = !shadow;
-                        ConfigManager.updateShadow(shadow);
-                    },
-                    new Button.CreateNarration() {
-                        @Override
-                        public @NonNull MutableComponent createNarrationMessage(@NonNull Supplier<MutableComponent> defaultNarrationSupplier) {
-                            return Component.literal("");
-                        }
-                    })
-            {
-                @Override
-                protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-                    graphics.fill(shadowButtonX, centerY - 30, shadowButtonX + btnWidth, centerY - 10,
-                            shadow ? 0x8800FF00 : 0x88FF0000);
-                    graphics.text(font, "Shadow",
-                            shadowButtonX + btnWidth / 2 - font.width("Shadow") / 2,
-                            centerY - 24, 0xFFFFFFFF, shadow);
-                }
-            });
+                int inputBoxX = groupStartX + btnWidth + gap;
+                int twelveHrButtonX = inputBoxX + boxWidth + gap;
 
-            // Text format input box — center of the group
-            inputBox = new LimitedWidthEditBox(
-                    inputBoxX,
-                    centerY - 30,
-                    boxWidth,
-                    20,
-                    Component.empty(),
-                    boxWidth
-            );
-            inputBox.setValue(message.getString());
+                // Shadow toggle button — LEFT of input box
+                this.addRenderableWidget(new Button(
+                        groupStartX,
+                        centerY - 30,
+                        btnWidth,
+                        20,
+                        Component.literal("Shadow"),
+                        _ -> {
+                            shadow = !shadow;
+                            ConfigManager.updateShadow(shadow);
+                        },
+                        new Button.CreateNarration() {
+                            @Override
+                            public @NonNull MutableComponent createNarrationMessage(@NonNull Supplier<MutableComponent> defaultNarrationSupplier) {
+                                return Component.literal("");
+                            }
+                        }) {
+                    @Override
+                    protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+                        graphics.fill(groupStartX, centerY - 30, groupStartX + btnWidth, centerY - 10,
+                                shadow ? 0x8800FF00 : 0x88FF0000);
+                        graphics.text(font, "Shadow",
+                                groupStartX + btnWidth / 2 - font.width("Shadow") / 2,
+                                centerY - 24, 0xFFFFFFFF, shadow);
+                    }
+                });
 
-            // 12H toggle button — RIGHT of input box, same size as Shadow
-            this.addRenderableWidget(new Button(
-                    twelveHrButtonX,
-                    centerY - 30,
-                    btnWidth,
-                    20,
-                    Component.literal("12H"),
-                    _ -> ConfigManager.updateFormat12Hour(!ConfigStorage.format12Hour),
-                    new Button.CreateNarration() {
-                        @Override
-                        public @NonNull MutableComponent createNarrationMessage(@NonNull Supplier<MutableComponent> defaultNarrationSupplier) {
-                            return Component.literal("");
-                        }
-                    })
-            {
-                @Override
-                protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-                    graphics.fill(twelveHrButtonX, centerY - 30, twelveHrButtonX + btnWidth, centerY - 10,
-                            ConfigStorage.format12Hour ? 0x8800FF00 : 0x88FF0000);
-                    graphics.text(font, "12H",
-                            twelveHrButtonX + btnWidth / 2 - font.width("12H") / 2,
-                            centerY - 24, 0xFFFFFFFF, false);
-                }
-            });
+                // Text format input box — center of the group
+                inputBox = new LimitedWidthEditBox(
+                        inputBoxX,
+                        centerY - 30,
+                        boxWidth,
+                        20,
+                        Component.empty(),
+                        boxWidth
+                );
+                inputBox.setValue(message.getString());
 
-            // Color input (below text format with padding)
-            colorInputBox = new EditBox(font, centerX - 100, centerY + 10, 200, 20, Component.empty());
-            assert Minecraft.getInstance().gui.screen() != null;
-            colorInputBox.setMaxLength(Minecraft.getInstance().gui.screen().width);
-            colorInputBox.setHint(Component.literal("#RRGGBB"));
+                // 12H toggle button — RIGHT of input box, same size as Shadow
+                this.addRenderableWidget(new Button(
+                        twelveHrButtonX,
+                        centerY - 30,
+                        btnWidth,
+                        20,
+                        Component.literal("12H"),
+                        _ -> ConfigManager.updateFormat12Hour(!ConfigStorage.format12Hour),
+                        new Button.CreateNarration() {
+                            @Override
+                            public @NonNull MutableComponent createNarrationMessage(@NonNull Supplier<MutableComponent> defaultNarrationSupplier) {
+                                return Component.literal("");
+                            }
+                        }) {
+                    @Override
+                    protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+                        graphics.fill(twelveHrButtonX, centerY - 30, twelveHrButtonX + btnWidth, centerY - 10,
+                                ConfigStorage.format12Hour ? 0x8800FF00 : 0x88FF0000);
+                        graphics.text(font, "12H",
+                                twelveHrButtonX + btnWidth / 2 - font.width("12H") / 2,
+                                centerY - 24, 0xFFFFFFFF, false);
+                    }
+                });
 
-            colorInputBox.setValue(String.format("#%06X", previewRGB));
+                // Color input (below text format with padding)
+                colorInputBox = new EditBox(font, centerX - 100, centerY + 10, 200, 20, Component.empty());
+                assert Minecraft.getInstance().gui.screen() != null;
+                colorInputBox.setMaxLength(Minecraft.getInstance().gui.screen().width);
+                colorInputBox.setHint(Component.literal("#RRGGBB"));
 
-            addRenderableWidget(inputBox);
-            addRenderableWidget(colorInputBox);
-            setInitialFocus(inputBox);
+                colorInputBox.setValue(String.format("#%06X", previewRGB));
 
-        } else if ("background".equals(segmentName)) {
-            // Background color input with opacity slider
-            int currentColor = AbstractClockWidget.backgroundColor;
-            previewAlpha = (currentColor >>> 24) & 0xFF;
-            previewRGB = currentColor & 0x00FFFFFF;
+                addRenderableWidget(inputBox);
+                addRenderableWidget(colorInputBox);
+                setInitialFocus(inputBox);
 
-            // Opacity slider
-            OpacitySlider opacitySlider = new OpacitySlider(centerX - 100, centerY - 90, 200, 20, previewAlpha);
-            addRenderableWidget(opacitySlider);
+            }
+            case "background" -> {
+                // Background color input with opacity slider
+                int currentColor = AbstractClockWidget.backgroundColor;
+                previewAlpha = (currentColor >>> 24) & 0xFF;
+                previewRGB = currentColor & 0x00FFFFFF;
 
-            // Color input
-            inputBox = new EditBox(font, centerX - 100, centerY - 55, 200, 20, Component.empty());
-            assert Minecraft.getInstance().gui.screen() != null;
-            inputBox.setMaxLength(Minecraft.getInstance().gui.screen().width);
-            inputBox.setHint(Component.literal("#RRGGBB"));
-            inputBox.setValue(String.format("#%06X", previewRGB));
+                // Opacity slider
+                OpacitySlider opacitySlider = new OpacitySlider(centerX - 100, centerY - 90, 200, 20, previewAlpha);
+                addRenderableWidget(opacitySlider);
 
-            // Padding X input
-            paddingXBox = new EditBox(font, centerX - 100, centerY - 10, 95, 20, Component.empty());
-            paddingXBox.setValue(String.valueOf(config.backgroundPaddingX));
-            paddingXBox.setHint(Component.literal("Padding X"));
+                // Color input
+                inputBox = new EditBox(font, centerX - 100, centerY - 55, 200, 20, Component.empty());
+                assert Minecraft.getInstance().gui.screen() != null;
+                inputBox.setMaxLength(Minecraft.getInstance().gui.screen().width);
+                inputBox.setHint(Component.literal("#RRGGBB"));
+                inputBox.setValue(String.format("#%06X", previewRGB));
 
-            // Padding Y input
-            paddingYBox = new EditBox(font, centerX + 5, centerY - 10, 95, 20, Component.empty());
-            paddingYBox.setValue(String.valueOf(config.backgroundPaddingY));
-            paddingYBox.setHint(Component.literal("Padding Y"));
+                // Padding X input
+                paddingXBox = new EditBox(font, centerX - 100, centerY - 10, 95, 20, Component.empty());
+                paddingXBox.setValue(String.valueOf(config.backgroundPaddingX));
+                paddingXBox.setHint(Component.literal("Padding X"));
 
-            addRenderableWidget(inputBox);
-            addRenderableWidget(paddingXBox);
-            addRenderableWidget(paddingYBox);
-            setInitialFocus(inputBox);
+                // Padding Y input
+                paddingYBox = new EditBox(font, centerX + 5, centerY - 10, 95, 20, Component.empty());
+                paddingYBox.setValue(String.valueOf(config.backgroundPaddingY));
+                paddingYBox.setHint(Component.literal("Padding Y"));
 
-        } else if ("x".equals(segmentName)) {
-            int screenW = minecraft.getWindow().getGuiScaledWidth();
-            int maxX = screenW - (int)(Minecraft.getInstance().font.width(AbstractClockWidget.getRenderedText()) * AbstractClockWidget.scale);
-            positionSliderWidget = new PositionSliderWidget(centerX - 100, centerY, 200, 20, "x", AbstractClockWidget.x, 0, maxX);
-            addRenderableWidget(positionSliderWidget);
+                addRenderableWidget(inputBox);
+                addRenderableWidget(paddingXBox);
+                addRenderableWidget(paddingYBox);
+                setInitialFocus(inputBox);
 
-        } else if ("y".equals(segmentName)) {
-            int screenH = minecraft.getWindow().getGuiScaledHeight();
-            int maxY = screenH - (int)(Minecraft.getInstance().font.lineHeight * AbstractClockWidget.scale);
-            positionSliderWidget = new PositionSliderWidget(centerX - 100, centerY, 200, 20, "y", AbstractClockWidget.y, 0, maxY);
-            addRenderableWidget(positionSliderWidget);
-
-        } else {
-            inputBox = new EditBox(font, centerX - 100, centerY, 200, 20, Component.empty());
-            inputBox.setValue(getInitialValue());
-            addRenderableWidget(inputBox);
-            setInitialFocus(inputBox);
+            }
+            case "x" -> {
+                int screenW = minecraft.getWindow().getGuiScaledWidth();
+                int maxX = screenW - (int) (Minecraft.getInstance().font.width(AbstractClockWidget.getRenderedText()) * AbstractClockWidget.scale);
+                positionSliderWidget = new PositionSliderWidget(centerX - 100, centerY, 200, 20, "x", AbstractClockWidget.x, 0, maxX);
+                addRenderableWidget(positionSliderWidget);
+            }
+            case "y" -> {
+                int screenH = minecraft.getWindow().getGuiScaledHeight();
+                int maxY = screenH - (int) (Minecraft.getInstance().font.lineHeight * AbstractClockWidget.scale);
+                positionSliderWidget = new PositionSliderWidget(centerX - 100, centerY, 200, 20, "y", AbstractClockWidget.y, 0, maxY);
+                addRenderableWidget(positionSliderWidget);
+            }
+            case null, default -> {
+                inputBox = new EditBox(font, centerX - 100, centerY, 200, 20, Component.empty());
+                inputBox.setValue(getInitialValue());
+                addRenderableWidget(inputBox);
+                setInitialFocus(inputBox);
+            }
         }
     }
 
@@ -343,7 +345,6 @@ public class ConfigInputScreen extends Screen {
         try {
             // Update text format
             ConfigManager.updateMessage(textValue);
-            if(ConfigStorage.isDebug) ConfigStorage.LOGGER.info("changed message to {}", textValue);
 
             // Update color
             int rgb = parseRGB(colorValue);
@@ -367,23 +368,25 @@ public class ConfigInputScreen extends Screen {
 
             // Update padding X
             float paddingX = Float.parseFloat(paddingXValue);
-            paddingX = clamp(paddingX, 0, 50);
+            paddingX = Math.clamp(paddingX, 0, 50);
             ConfigManager.updateBackgroundPaddingX(paddingX);
 
             // Update padding Y
             float paddingY = Float.parseFloat(paddingYValue);
-            paddingY = clamp(paddingY, 0, 50);
+            paddingY = Math.clamp(paddingY, 0, 50);
             ConfigManager.updateBackgroundPaddingY(paddingY);
 
-            if (((finalColor >>> 24) & 0xFF) == 0x00) {
-                ConfigStorage.LOGGER.info("opacity is set to 0 -> disabling background opacity");
-            }
+            checkOpacityAndWarn(finalColor);
 
-            clockWidget.updateHitbox();
         } catch (Exception e) {
             ConfigStorage.LOGGER.warn("Invalid background values: color={}, paddingX={}, paddingY={}",
                     colorValue, paddingXValue, paddingYValue);
         }
+    }
+
+    private void checkOpacityAndWarn(int finalColor){
+        if (((finalColor >>> 24) & 0xFF) == 0x00) ConfigStorage.LOGGER.info("opacity is set to 0 -> disabling background opacity");
+        clockWidget.updateHitbox();
     }
 
     private void applyValue(String value) {
@@ -394,19 +397,19 @@ public class ConfigInputScreen extends Screen {
             switch (segmentName) {
                 case "x" -> {
                     int x = Integer.parseInt(value);
-                    x = (int) clamp(x, 0, screenW - Minecraft.getInstance().font.width(AbstractClockWidget.getRenderedText()));
+                    x = Math.clamp(x, 0, screenW - Minecraft.getInstance().font.width(AbstractClockWidget.getRenderedText()));
                     ConfigManager.updateX(x);
                     AbstractClockWidget.x = x;
                 }
                 case "y" -> {
                     int y = Integer.parseInt(value);
-                    y = (int) clamp(y, 0, screenH - Minecraft.getInstance().font.lineHeight);
+                    y = Math.clamp(y, 0, screenH - Minecraft.getInstance().font.lineHeight);
                     AbstractClockWidget.y = y;
                     ConfigManager.updateY(y);
                 }
                 case "scale" -> {
                     float scale = Float.parseFloat(value);
-                    scale = clamp(scale, 1, 10);
+                    scale = Math.clamp(scale, 1, 10);
                     AbstractClockWidget.scale = scale;
                     ConfigManager.updateScale(scale);
                 }
@@ -417,16 +420,6 @@ public class ConfigInputScreen extends Screen {
             ConfigStorage.LOGGER.warn("Invalid value for {}: {}", segmentName, value);
         }
     }
-
-    private float clamp(float value, float min, float max) {
-        return Math.max(min, Math.min(max, value));
-    }
-
-    @Override
-    public boolean isPauseScreen() {
-        return true;
-    }
-
 
     private class OpacitySlider extends AbstractSliderButton {
 
@@ -454,8 +447,7 @@ public class ConfigInputScreen extends Screen {
                 ConfigManager.updateColor(finalColor);
             }
             else if ("background".equals(segmentName)) {
-                if (((finalColor >>> 24) & 0xFF) == 0x00) ConfigStorage.LOGGER.info("opacity is set to 0 -> disabling background opacity");
-                clockWidget.updateHitbox();
+                checkOpacityAndWarn(finalColor);
                 AbstractClockWidget.backgroundColor = finalColor;
                 ConfigManager.updateBackgroundColor(finalColor);
             }
@@ -494,7 +486,7 @@ public class ConfigInputScreen extends Screen {
         }
 
         private void commit(float v) {
-            v = clamp(v, minVal, maxVal);
+            v = Math.clamp(v, minVal, maxVal);
             if ("x".equals(axis)) {
                 AbstractClockWidget.x = v;
                 ConfigManager.updateX(v);
@@ -519,7 +511,7 @@ public class ConfigInputScreen extends Screen {
                 if (now - lastCursorBlink > 500) { cursorVisible = !cursorVisible; lastCursorBlink = now; }
 
                 String label = axis.toUpperCase() + ": ";
-                String display = textBuf.toString() + (cursorVisible ? "|" : " ");
+                String display = textBuf + (cursorVisible ? "|" : " ");
                 String full = label + display;
                 int textX = wx + ww / 2 - font.width(full) / 2;
                 int textY = wy + wh / 2 - font.lineHeight / 2;
@@ -569,7 +561,7 @@ public class ConfigInputScreen extends Screen {
 
         private void updateSliderFromMouse(float mouseX) {
             float ratio = (mouseX - (getX() + 1)) / (float)(getWidth() - 2);
-            sliderValue = clamp(ratio, 0f, 1f);
+            sliderValue = Math.clamp(ratio, 0f, 1f);
             commit(currentValue());
         }
 
@@ -597,7 +589,7 @@ public class ConfigInputScreen extends Screen {
         private void commitTextInput() {
             try {
                 float v = Float.parseFloat(textBuf.toString());
-                v = clamp(v, minVal, maxVal);
+                v = Math.clamp(v, minVal, maxVal);
                 sliderValue = (maxVal > minVal) ? (v - minVal) / (maxVal - minVal) : 0f;
                 commit(v);
             } catch (NumberFormatException ignored) {}

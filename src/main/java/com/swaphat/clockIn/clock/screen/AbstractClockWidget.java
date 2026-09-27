@@ -30,7 +30,7 @@ public class AbstractClockWidget extends AbstractWidget {
 
 
 
-    public boolean isInHUD = false;
+    public static boolean isInHUD = false;
 
 
     public AbstractClockWidget(float x, float y, float width, float height, Component message, int color) {

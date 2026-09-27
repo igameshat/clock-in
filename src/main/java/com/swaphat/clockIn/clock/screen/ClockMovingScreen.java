@@ -1,12 +1,13 @@
 package com.swaphat.clockIn.clock.screen;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.swaphat.clockIn.config.ConfigManager;
-import com.swaphat.clockIn.config.ConfigStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 
@@ -69,14 +70,30 @@ public class ClockMovingScreen extends Screen {
         super.init();
         this.addRenderableWidget(configWidget);
         this.addRenderableWidget(clockWidget);
-        if(ConfigStorage.isDebug) ConfigStorage.LOGGER.info("{} {} {} {} {} {} {}", ConfigManager.getConfig().x, ConfigManager.getConfig().y, ConfigManager.getConfig().width, ConfigManager.getConfig().height, ConfigManager.getConfig().message, ConfigManager.getConfig().color, ConfigManager.getConfig().backgroundColor);
         this.addRenderableWidget(textWidget);
-        clockWidget.isInHUD = true;
+        this.setFocused(clockWidget);
+        AbstractClockWidget.isInHUD = true;
+    }
+
+    @Override
+    public boolean keyPressed(final @NonNull KeyEvent event) {
+        if (AbstractClockWidget.isInHUD) {
+            float moveSpeed = 2;
+            switch(event.key()) {
+                case InputConstants.KEY_LEFT, InputConstants.KEY_A -> AbstractClockWidget.x -= moveSpeed;
+                case InputConstants.KEY_DOWN, InputConstants.KEY_S -> AbstractClockWidget.y += moveSpeed;
+                case InputConstants.KEY_RIGHT, InputConstants.KEY_D -> AbstractClockWidget.x += moveSpeed;
+                case InputConstants.KEY_UP, InputConstants.KEY_W -> AbstractClockWidget.y -= moveSpeed;
+            }
+        }
+        ConfigManager.updateX(AbstractClockWidget.x);
+        ConfigManager.updateY(AbstractClockWidget.y);
+        return super.keyPressed(event);
     }
 
     @Override
     public void onClose() {
-        clockWidget.isInHUD = false;
+        AbstractClockWidget.isInHUD = false;
         ConfigManager.updateX(AbstractClockWidget.x);
         ConfigManager.updateY(AbstractClockWidget.y);
         ConfigManager.updateWidth(AbstractClockWidget.width);
