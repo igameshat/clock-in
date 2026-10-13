@@ -8,7 +8,7 @@
     "infinitygames"
   ],
   "contributors" : ["quduell"],
-  "license": "CC0-1.0",
+  "license": "MIT",
   "environment": "client",
   "entrypoints" : {
     "modmenu": ["com.swaphat.clockIn.comp.ModMenu"]
@@ -21,7 +21,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.19.5",
-    "minecraft": "~26.4-alpha.1",
+    "minecraft": "~26.4-alpha.4",
     "java": ">=25"
   }
 }
