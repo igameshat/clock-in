@@ -45,7 +45,7 @@ public class ClockMovingScreen extends Screen {
 
     ) {
         @Override
-        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics) {
             graphics.centeredText(
                     Minecraft.getInstance().font,
                     "press esc to close",
@@ -62,7 +62,7 @@ public class ClockMovingScreen extends Screen {
     };
 
     @Override
-    public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+    public void extractBackground(@NonNull GuiGraphicsExtractor graphics) {
     }
 
     @Override

@@ -91,7 +91,7 @@ public class ConfigInputScreen extends Screen {
                             }
                         }) {
                     @Override
-                    protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+                    protected void extractContents(@NonNull GuiGraphicsExtractor graphics) {
                         graphics.fill(groupStartX, centerY - 30, groupStartX + btnWidth, centerY - 10,
                                 shadow ? 0x8800FF00 : 0x88FF0000);
                         graphics.text(font, "Shadow",
@@ -126,7 +126,7 @@ public class ConfigInputScreen extends Screen {
                             }
                         }) {
                     @Override
-                    protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+                    protected void extractContents(@NonNull GuiGraphicsExtractor graphics) {
                         graphics.fill(twelveHrButtonX, centerY - 30, twelveHrButtonX + btnWidth, centerY - 10,
                                 ConfigStorage.format12Hour ? 0x8800FF00 : 0x88FF0000);
                         graphics.text(font, "12H",
@@ -142,6 +142,9 @@ public class ConfigInputScreen extends Screen {
                 colorInputBox.setHint(Component.literal("#RRGGBB"));
 
                 colorInputBox.setValue(String.format("#%06X", previewRGB));
+
+                inputBox.setResponder(_ -> applyTextInfo(inputBox.getValue(), colorInputBox.getValue()));
+                colorInputBox.setResponder(_ -> applyTextInfo(inputBox.getValue(), colorInputBox.getValue()));
 
                 addRenderableWidget(inputBox);
                 addRenderableWidget(colorInputBox);
@@ -175,6 +178,10 @@ public class ConfigInputScreen extends Screen {
                 paddingYBox.setValue(String.valueOf(config.backgroundPaddingY));
                 paddingYBox.setHint(Component.literal("Padding Y"));
 
+                inputBox.setResponder(_ -> applyBackground(inputBox.getValue(), paddingXBox.getValue(), paddingYBox.getValue()));
+                paddingXBox.setResponder(_ -> applyBackground(inputBox.getValue(), paddingXBox.getValue(), paddingYBox.getValue()));
+                paddingYBox.setResponder(_ -> applyBackground(inputBox.getValue(), paddingXBox.getValue(), paddingYBox.getValue()));
+
                 addRenderableWidget(inputBox);
                 addRenderableWidget(paddingXBox);
                 addRenderableWidget(paddingYBox);
@@ -193,9 +200,16 @@ public class ConfigInputScreen extends Screen {
                 positionSliderWidget = new PositionSliderWidget(centerX - 100, centerY, 200, 20, "y", AbstractClockWidget.y, 0, maxY);
                 addRenderableWidget(positionSliderWidget);
             }
+            case "scale" -> {
+                positionSliderWidget = new PositionSliderWidget(centerX - 100, centerY, 200, 20, "scale", AbstractClockWidget.scale, 1.0f, 10.0f);
+                addRenderableWidget(positionSliderWidget);
+            }
             case null, default -> {
                 inputBox = new EditBox(font, centerX - 100, centerY, 200, 20, Component.empty());
                 inputBox.setValue(getInitialValue());
+
+                inputBox.setResponder(this::applyValue);
+
                 addRenderableWidget(inputBox);
                 setInitialFocus(inputBox);
             }
@@ -214,7 +228,7 @@ public class ConfigInputScreen extends Screen {
     }
 
     @Override
-    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics) {
         graphics.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
 
         if ("format".equals(segmentName)) {
@@ -288,7 +302,7 @@ public class ConfigInputScreen extends Screen {
             graphics.centeredText(font, title, width / 2, height / 2 - 30, 0xFFFFFFFF);
         }
 
-        super.extractRenderState(graphics, mouseX, mouseY, delta);
+        super.extractRenderState(graphics);
     }
 
     @Override
@@ -413,6 +427,16 @@ public class ConfigInputScreen extends Screen {
                     AbstractClockWidget.scale = scale;
                     ConfigManager.updateScale(scale);
                 }
+                case "width" -> {
+                    int w = Integer.parseInt(value);
+                    AbstractClockWidget.width = w;
+                    ConfigManager.updateWidth(w);
+                }
+                case "height" -> {
+                    int h = Integer.parseInt(value);
+                    AbstractClockWidget.height = h;
+                    ConfigManager.updateHeight(h);
+                }
             }
 
             clockWidget.updateHitbox();
@@ -490,15 +514,18 @@ public class ConfigInputScreen extends Screen {
             if ("x".equals(axis)) {
                 AbstractClockWidget.x = v;
                 ConfigManager.updateX(v);
-            } else {
+            } else if ("y".equals(axis)) {
                 AbstractClockWidget.y = v;
                 ConfigManager.updateY(v);
+            } else if ("scale".equals(axis)) {
+                AbstractClockWidget.scale = v;
+                ConfigManager.updateScale(v);
             }
             clockWidget.updateHitbox();
         }
 
         @Override
-        protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics) {
             int wx = getX(), wy = getY(), ww = getWidth(), wh = getHeight();
 
             if (editMode) {

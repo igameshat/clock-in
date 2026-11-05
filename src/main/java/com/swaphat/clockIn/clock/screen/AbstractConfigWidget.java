@@ -64,7 +64,7 @@ public class AbstractConfigWidget extends AbstractWidget {
 
 
     @Override
-    protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+    protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics) {
         updateSegments();
 
         int drawX = (int) x;

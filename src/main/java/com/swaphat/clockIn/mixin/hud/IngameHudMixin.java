@@ -41,7 +41,7 @@ public class IngameHudMixin {
     private void onExtractRenderState(DeltaTracker deltaTracker, boolean shouldRenderLevel, boolean resourcesLoaded, CallbackInfo ci, @Local(name = "graphics") GuiGraphicsExtractor graphics) {
         if (clockWidget != null) {
             if (shouldRenderLevel && !(Minecraft.getInstance().gui.screen() instanceof PauseScreen)) {
-                clockWidget.extractRenderState(graphics, (int) ConfigManager.getConfig().x, (int) ConfigManager.getConfig().y, deltaTracker.getRealtimeDeltaTicks());
+                clockWidget.extractRenderState(graphics);
             }
 
         }

@@ -116,7 +116,7 @@ public class AbstractClockWidget extends AbstractWidget {
     protected void updateWidgetNarration(@NonNull NarrationElementOutput output) {}
 
     @Override
-    protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+    protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics) {
         // Get fresh config values each render
         config = ConfigManager.getConfig();
         backgroundPaddingX = config.backgroundPaddingX;
