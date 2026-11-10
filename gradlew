@@ -213,13 +213,13 @@ set -- \
         -jar "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" \
         "$@"
 
-# Stop when "xargs" is not available.
+# Stop when "Xargs" is not available.
 if ! command -v xargs >/dev/null 2>&1
 then
-    die "xargs is not available"
+    die "Xargs is not available"
 fi
 
-# Use "xargs" to parse quoted args.
+# Use "Xargs" to parse quoted args.
 #
 # With -n1 it outputs one arg per line, with the quotes and backslashes removed.
 #

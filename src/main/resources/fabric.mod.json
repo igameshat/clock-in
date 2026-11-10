@@ -7,7 +7,7 @@
   "authors": [
     "infinitygames"
   ],
-  "contributors" : ["quduell"],
+  "contributors" : [],
   "license": "MIT",
   "environment": "client",
   "entrypoints" : {
@@ -21,7 +21,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.19.5",
-    "minecraft": "~26.4-alpha.4",
+    "minecraft": "~26.4-alpha.8",
     "java": ">=25"
   }
 }

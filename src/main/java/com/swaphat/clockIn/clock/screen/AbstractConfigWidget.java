@@ -23,7 +23,6 @@ public class AbstractConfigWidget extends AbstractWidget {
     private final Font font = Minecraft.getInstance().font;
     private final int lineHeight = font.lineHeight;
 
-    // segment name -> width
     private final Map<String, Integer> segments = new LinkedHashMap<>();
 
     private final AbstractClockWidget clockWidget;
@@ -45,17 +44,17 @@ public class AbstractConfigWidget extends AbstractWidget {
     private void updateSegments() {
         segments.clear();
 
-        String xLabel   = "x: "     + formatCord(AbstractClockWidget.x);
-        String yLabel   = "y: "     + formatCord(AbstractClockWidget.y);
-        String scaleLabel = "scale: " + ConfigManager.getConfig().scale;
-        String formatLabel = "format: " + AbstractClockWidget.getRenderedText();
-        String bgLabel  = "background";
+        String xLabel = "X: " + formatCord(AbstractClockWidget.x);
+        String yLabel = "Y: " + formatCord(AbstractClockWidget.y);
+        String scaleLabel = "Scale: " + ConfigManager.getConfig().scale;
+        String formatLabel = "Format: " + AbstractClockWidget.getRenderedText();
+        String bgLabel = "Background";
 
-        segments.put("x",          font.width(xLabel));
-        segments.put("y",          font.width(yLabel));
-        segments.put("scale",      font.width(scaleLabel));
-        segments.put("format",     font.width(formatLabel));
-        segments.put("background", font.width(bgLabel));
+        segments.put("X",font.width(xLabel));
+        segments.put("Y",font.width(yLabel));
+        segments.put("Scale",font.width(scaleLabel));
+        segments.put("Format",font.width(formatLabel));
+        segments.put("Background", font.width(bgLabel));
 
         this.width = segments.values().stream().mapToInt(Integer::intValue).sum()
                 + font.width(" ") * (segments.size() - 1);
@@ -84,19 +83,19 @@ public class AbstractConfigWidget extends AbstractWidget {
 
             // Background color per segment
             int bgColor = switch (name) {
-                case "x" -> 0x8800FFFF;
-                case "y" -> 0x88FF00FF;
-                case "scale" -> 0x880000FF;
-                case "format" -> 0x88FFAA00;
-                case "background" -> ConfigManager.getConfig().backgroundColor;
+                case "X" -> 0x8800FFFF;
+                case "Y" -> 0x88FF00FF;
+                case "Scale" -> 0x880000FF;
+                case "Format" -> 0x88FFAA00;
+                case "Background" -> ConfigManager.getConfig().backgroundColor;
                 default -> 0x88000000;
             };
 
             graphics.fill(drawX, drawY, drawX + segWidth, drawY + lineHeight, bgColor);
 
-            // Render text with special handling for "format"
-            if ("format".equals(name)) {
-                String prefix = "format: ";
+            // Render text with special handling for "Format"
+            if ("Format".equals(name)) {
+                String prefix = "Format: ";
                 String textPart = AbstractClockWidget.getRenderedText();
 
                 int textPartX = drawX + font.width(prefix);
@@ -110,10 +109,10 @@ public class AbstractConfigWidget extends AbstractWidget {
 
             } else {
                 String text = switch (name) {
-                    case "x" -> "x: " + formatCord(AbstractClockWidget.x);
-                    case "y" -> "y: " + formatCord(AbstractClockWidget.y);
-                    case "scale" -> "scale: " + AbstractClockWidget.scale;
-                    case "background" -> "background";
+                    case "X" -> "X: " + formatCord(AbstractClockWidget.x);
+                    case "Y" -> "Y: " + formatCord(AbstractClockWidget.y);
+                    case "Scale" -> "Scale: " + AbstractClockWidget.scale;
+                    case "Background" -> "Background";
                     default -> "";
                 };
 
